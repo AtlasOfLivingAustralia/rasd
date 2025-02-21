@@ -144,6 +144,26 @@ Resources:
         Type: CODEPIPELINE
         BuildSpec: !Sub cicd/${pProductComponent}/pipeline/lint_build_frontend_buildspec.yaml
       TimeoutInMinutes: 5
+  # TestBackend:
+  #   Type: AWS::CodeBuild::Project
+  #   Properties:
+  #     Name: !Sub
+  #       - "${pProductName}-${pProductComponent}-test-backend-${ResourceName}"
+  #       - ResourceName: !If [ IsDev, !Ref pCleanBranch, !Ref pEnvironment ]
+  #     Description: Test the backend code with poe
+  #     ServiceRole:
+  #       Fn::ImportValue:
+  #         Fn::Sub: ${pBootstrapStackName}-CodeBuildServiceRoleArn
+  #     Artifacts:
+  #       Type: CODEPIPELINE
+  #     Environment:
+  #       Type: LINUX_CONTAINER
+  #       ComputeType: BUILD_GENERAL1_SMALL
+  #       Image: aws/codebuild/standard:7.0
+  #     Source:
+  #       Type: CODEPIPELINE
+  #       BuildSpec: !Sub cicd/${pProductComponent}/pipeline/test_backend_buildspec.yaml
+  #     TimeoutInMinutes: 5
   ### Pipeline
   Pipeline:
     Type: AWS::CodePipeline::Pipeline
@@ -269,6 +289,28 @@ Resources:
               OutputArtifacts:
                 - Name: BuildFrontendArtifact
               RunOrder: 3
+            # - Name: TestBackend
+            #   ActionTypeId:
+            #     Category: Build
+            #     Owner: AWS
+            #     Provider: CodeBuild
+            #     Version: 1
+            #   Configuration:
+            #     ProjectName: !Ref TestBackend
+            #     EnvironmentVariables: !Sub |
+            #       [
+            #         { "name":"RASD_SECRETS_NAME", "value":"#{ExportConfigNS.SECRET_KEY_NAME}" },
+            #         { "name":"AWS_COGNITO_POOL_ID", "value":"#{CloudFormationOutNS.CognitoPoolId}" },
+            #         { "name":"AWS_COGNITO_CLIENT_ID", "value":"#{CloudFormationOutNS.CognitoClientId}" },
+            #         { "name":"AWS_COGNITO_CLIENT_SECRET_KEY", "value":"#{CloudFormationOutNS.CognitoClientSecretKey}" },
+            #         { "name":"AWS_DYNAMODB_TABLE_ACCESS_REQUESTS", "value":"#{CloudFormationOutNS.DynamodbTableAccessRequests}" }
+            #       ]
+            #   InputArtifacts:
+            #     - Name: SourceArtifact
+            #   OutputArtifacts:
+            #     - Name: TestBackendArtifact
+            #   RunOrder: 4
+
         - Name: Deploy
           Actions:
             - Name: DeployNotification
@@ -381,6 +423,16 @@ Resources:
       Tags:
         - Key: Name
           Value: !Ref AWS::StackName
+
+  # TestBackendLogGroup:
+  #   Type: AWS::Logs::LogGroup
+  #   DeletionPolicy: Delete
+  #   Properties:
+  #     LogGroupName: !Sub /aws/codebuild/${TestBackend}
+  #     RetentionInDays: 30
+  #     Tags:
+  #       - Key: Name
+  #         Value: !Ref AWS::StackName
 
   EmptyBucketLogGroup:
     Type: AWS::Logs::LogGroup

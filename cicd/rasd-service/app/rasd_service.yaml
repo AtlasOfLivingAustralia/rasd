@@ -15,6 +15,10 @@ Parameters:
   pCodeBuildNumber:
     Type: String
     Description: The code build number, used for updating ApiGateway Deployment
+  pDeletionPolicy:
+    Type: String
+    Description: The deletion policy for the stack
+    Default: Retain
   pEnvironment:
     Type: String
     Description: The AWS environment this belongs to
@@ -50,6 +54,10 @@ Parameters:
   pSubDomain:
     Type: String
     Description: The subdomain the site is accessed on
+  pUpdateReplacePolicy:
+    Type: String
+    Description: The update replace policy for the stack
+    Default: Retain
 
 Conditions:
   IsDev: !Equals
@@ -67,8 +75,8 @@ Resources:
 
   DynamoDBTableDataAccessRequests:
     Type: AWS::DynamoDB::Table
-    DeletionPolicy: Retain
-    UpdateReplacePolicy: Retain
+    DeletionPolicy: !Ref pDeletionPolicy
+    UpdateReplacePolicy: !Ref pUpdateReplacePolicy
     Properties:
       AttributeDefinitions:
         - AttributeType: S
@@ -87,8 +95,8 @@ Resources:
 
   DynamoDBTableMetadata:
     Type: AWS::DynamoDB::Table
-    DeletionPolicy: Retain
-    UpdateReplacePolicy: Retain
+    DeletionPolicy: !Ref pDeletionPolicy
+    UpdateReplacePolicy: !Ref pUpdateReplacePolicy
     Properties:
       AttributeDefinitions:
         - AttributeType: S
@@ -107,8 +115,8 @@ Resources:
 
   DynamoDBTableOrganisations:
     Type: AWS::DynamoDB::Table
-    DeletionPolicy: Retain
-    UpdateReplacePolicy: Retain
+    DeletionPolicy: !Ref pDeletionPolicy
+    UpdateReplacePolicy: !Ref pUpdateReplacePolicy
     Properties:
       AttributeDefinitions:
         - AttributeType: S
@@ -127,8 +135,8 @@ Resources:
 
   DynamoDBTableRegistrations:
     Type: AWS::DynamoDB::Table
-    DeletionPolicy: Retain
-    UpdateReplacePolicy: Retain
+    DeletionPolicy: !Ref pDeletionPolicy
+    UpdateReplacePolicy: !Ref pUpdateReplacePolicy
     Properties:
       AttributeDefinitions:
         - AttributeType: S
@@ -254,7 +262,7 @@ Resources:
                 Action:
                   - ses:SendEmail
                 Effect: Allow
-      RoleName: !Sub ${AWS::StackName}-iamRoleForLambda
+      RoleName: !Sub rasd-${pCleanBranch}-lambda-role
       Tags:
         - Key: Name
           Value: !Ref AWS::StackName
@@ -272,13 +280,19 @@ Resources:
 
   CognitoPool:
     Type: AWS::Cognito::UserPool
-    DeletionPolicy: Retain
-    UpdateReplacePolicy: Retain
+    DeletionPolicy: !Ref pDeletionPolicy
+    UpdateReplacePolicy: !Ref pUpdateReplacePolicy
     Properties:
       AccountRecoverySetting:
         RecoveryMechanisms:
           - Name: verified_email
             Priority: 1
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: false
+        InviteMessageTemplate:
+          EmailMessage: Your username is {username} and temporary password is {####}
+          EmailSubject: Your temporary password
+          SMSMessage: Your username is {username} and temporary password is {####}
       DeletionProtection: !Ref pPoolDeletionProtection
       UsernameAttributes:
         - email
@@ -321,11 +335,12 @@ Resources:
         DefaultEmailOption: CONFIRM_WITH_CODE
         EmailMessage: Your verification code is {####}
         EmailSubject: Your verification code
+        SmsMessage: Your verification code is {####}
 
   CognitoGroupAdmin:
     Type: AWS::Cognito::UserPoolGroup
-    DeletionPolicy: Retain
-    UpdateReplacePolicy: Retain
+    DeletionPolicy: !Ref pDeletionPolicy
+    UpdateReplacePolicy: !Ref pUpdateReplacePolicy
     Properties:
       Description: Used by the RASD backend to determine user permission level. RASD Admins (inside the app).
       GroupName: Administrators
@@ -334,8 +349,8 @@ Resources:
 
   CognitoGroupCustodians:
     Type: AWS::Cognito::UserPoolGroup
-    DeletionPolicy: Retain
-    UpdateReplacePolicy: Retain
+    DeletionPolicy: !Ref pDeletionPolicy
+    UpdateReplacePolicy: !Ref pUpdateReplacePolicy
     Properties:
       Description: Used by the RASD backend to determine user permission level. RASD Custodians (inside the app).
       GroupName: DataCustodians
@@ -344,8 +359,8 @@ Resources:
 
   CognitoGroupRequestors:
     Type: AWS::Cognito::UserPoolGroup
-    DeletionPolicy: Retain
-    UpdateReplacePolicy: Retain
+    DeletionPolicy: !Ref pDeletionPolicy
+    UpdateReplacePolicy: !Ref pUpdateReplacePolicy
     Properties:
       Description: Used by the RASD backend to determine user permission level. RASD Requestors (inside the app).
       GroupName: DataRequestors
@@ -354,8 +369,8 @@ Resources:
 
   CognitoAppClientRasdbackend:
     Type: AWS::Cognito::UserPoolClient
-    DeletionPolicy: Retain
-    UpdateReplacePolicy: Retain
+    DeletionPolicy: !Ref pDeletionPolicy
+    UpdateReplacePolicy: !Ref pUpdateReplacePolicy
     Properties:
       UserPoolId: !Ref CognitoPool
       PreventUserExistenceErrors: ENABLED
@@ -473,7 +488,7 @@ Resources:
 
   ApiGatewayCustomDomainName:
     Type: AWS::ApiGatewayV2::DomainName
-    DeletionPolicy: Retain
+    DeletionPolicy: !Ref pDeletionPolicy
     Properties:
       DomainName: !Sub ${pSubDomain}.${pHostedZone}
       DomainNameConfigurations:
@@ -679,7 +694,7 @@ Resources:
 
   SESDomainIdentity:
     Type: AWS::SES::EmailIdentity
-    DeletionPolicy: Retain
+    DeletionPolicy: !Ref pDeletionPolicy
     Properties:
       DkimAttributes:
         SigningEnabled: true
@@ -752,6 +767,27 @@ Resources:
           Value: !Ref AWS::StackName
 
 Outputs:
+  # CognitoPoolId:
+  #   Description: The Cognito Pool ID
+  #   Value: !Ref CognitoPool
+  # CognitoClientId:
+  #   Description: The Cognito Client ID
+  #   Value: !Ref CognitoAppClientRasdbackend
+  # CognitoClientSecretKey:
+  #   Description: The Cognito Client Secret Key
+  #   Value: !GetAtt CognitoAppClientRasdbackend.ClientSecret
+  # DynamoDBTableAccessRequests:
+  #   Description: The DynamoDB Table for Access Requests
+  #   Value: !Ref DynamoDBTableDataAccessRequests
+  # DynamoDBTableMetadata:
+  #   Description: The DynamoDB Table for Metadata
+  #   Value: !Ref DynamoDBTableMetadata
+  # DynamoDBTableOrganisations:
+  #   Description: The DynamoDB Table for Organisations
+  #   Value: !Ref DynamoDBTableOrganisations
+  # DynamoDBTableRegistrations:
+  #   Description: The DynamoDB Table for Registrations
+  #   Value: !Ref DynamoDBTableRegistrations
   RestApiIdOutput:
     Description: The ID of the REST API
     Value: !Ref ApiGatewayRestApi

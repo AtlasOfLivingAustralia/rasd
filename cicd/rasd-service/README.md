@@ -2,8 +2,7 @@
 
 ## Overview
 
-The RASD backend is a Python 3.9 AWS Lambda which uses FastAPI and Mangum and
-is deployed with Pulumi.
+The RASD backend is a Python 3.9 AWS Lambda which uses FastAPI and Mangum and is deployed with CodePipeline and CloudFormation.
 
 ## Table of Contents
 
@@ -67,12 +66,11 @@ backend
 - [`mypy`](https://mypy.readthedocs.io/en/stable/) for type-checking analysis
 - [`ruff`](https://github.com/charliermarsh/ruff) for linting
 
-## Environment Variables
+## Environment Variables & Secrets
 
-In order to run the RASD backend, there are a number of required environment variables that **must** be set.
-The backend includes a `.env.example` file, which serves as a template for the _current_ required environment variables.
-This file should be copied to a `.env` file, and the values replaced with real credentials provided by an administrator.
-For an up-to-date list of all environment variables, see the `lambdas/rasd_fastapi/core/settings.py` file.
+In order to run the RASD backend, there are a number of required environment variables that **must** be set. We have set them up cloudformation, which will set environment variables when creating the lambda function. For an up-to-date list of all environment variables, see the `lambdas/rasd_fastapi/core/settings.py` file.
+
+Another thing to setup is AWS secrets. The `ABN_LOOKUP_GUID` variable should be set in newly created environment.
 
 ## Development
 
@@ -159,8 +157,8 @@ $ poe clean
 
 ## Build & Deployment
 
-This serverless application is deployed using `Pulumi`.
-Please see the top level `README.md` file for build & deployment instructions using Pulumi.
+This serverless application is deployed using `CodePipeline` and `CloudFormation`.
+Please see the top level `README.md` file for build & deployment instructions.
 Note that it is not recommended to build or deploy locally, and the below instructions are provided at the user's risk.
 
 ### Local Building
@@ -169,12 +167,3 @@ To build the backend in your local environment for deployment:
 1. Follow the [installation instructions](#installation) section above
 2. Run `LAMBDA_NAME=rasd_fastapi bash build-backend-wrapper.sh local`
 3. The built `dist/rasd_fastapi/` directory will be created
-
-### Local Deployment
-
-To deploy the built backend from you local environment:
-1. Ensure `Pulumi` is installed
-2. Ensure you you have credentials for your targeted stack in `~/.aws/credentials`
-3. Select the desired stack (e.g., `pulumi stack select dev`)
-4. Run `pulumi preview` to check if your credentials are valid
-6. Run `pulumi up` to deploy the code.
