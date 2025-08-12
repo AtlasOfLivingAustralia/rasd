@@ -668,7 +668,7 @@ export async function getRegistrationsAPI(
           reason: result.reason,
           organisationOverride: result.organisation_override,
           actionedBy: result.actioned_by,
-          createdAt: DateTime.fromISO(result.created_at).setLocale('en-AU').toLocaleString(),
+          createdAt: result.created_at, // Store as ISO string for correct sorting
         } as Registration;
       }),
     };
