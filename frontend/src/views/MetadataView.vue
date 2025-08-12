@@ -42,7 +42,7 @@
           v-if="keywordsOptions"
           :disabled="!editMode"
           v-model="metadata.keywords"
-          @focusout="this.keywordValidate"
+          @change="this.keywordValidate"
           multiple
           role="list">
           <template #trigger>
@@ -148,7 +148,7 @@
           v-model="metadata.locations"
           role="list"
           multiple
-          @focusout="this.locationsValidate"
+          @change="this.locationsValidate"
           :disabled="!editMode">
           <template #trigger>
             <o-button variant="primary" :class="this.locationsValidation.locationsClasses">
@@ -188,7 +188,7 @@
         >
         <o-dropdown
           v-model="metadata.collection_methods"
-          @focusout="this.collectionMethodValidate"
+          @change="this.collectionMethodValidate"
           multiple
           role="list"
           :disabled="!editMode">
@@ -325,7 +325,7 @@
           "
           >* Stored Format:</o-field
         >
-        <o-dropdown v-model="metadata.stored_format" @focusout="this.storedFormatValidate" :disabled="!editMode">
+        <o-dropdown v-model="metadata.stored_format" @change="this.storedFormatValidate" :disabled="!editMode">
           <template #trigger>
             <o-button variant="primary" type="button" :class="this.storedFormatValidation.storedFormatClasses">
               <span>{{ metadata.stored_format ? metadata.stored_format : 'Select a stored format' }}</span>
@@ -352,7 +352,7 @@
           multiple
           role="list"
           :disabled="!editMode"
-          @focusout="this.availableFormatsValidate">
+          @change="this.availableFormatsValidate">
           <template #trigger>
             <o-button variant="primary" type="button" :class="this.availableFormatsValidation.availableFormatsClasses">
               <span>
@@ -374,7 +374,7 @@
           "
           >* Access Rights:</o-field
         >
-        <o-dropdown v-model="metadata.access_rights" :disabled="!editMode" @focusout="this.accessRightsValidate">
+        <o-dropdown v-model="metadata.access_rights" :disabled="!editMode" @change="this.accessRightsValidate">
           <template #trigger>
             <o-button variant="primary" :class="this.accessRightsValidation.accessRightsClasses">
               <span>{{ metadata.access_rights ? metadata.access_rights : 'Please select an access right' }}</span>
@@ -418,7 +418,7 @@
         <o-dropdown
           v-model="metadata.security_classification"
           :disabled="!editMode"
-          @focusout="this.securityClassificationValidate">
+          @change="this.securityClassificationValidate">
           <template #trigger>
             <o-button variant="primary" :class="this.securityClassificationValidation.securityClassificationClasses">
               <span>{{
@@ -714,7 +714,9 @@ export default {
       this.titleValidation = titleValidator(this.metadata.title);
     },
     keywordValidate() {
-      this.keywordValidation = keywordsValidator(this.metadata.keywords);
+      this.$nextTick(() => {
+        this.keywordValidation = keywordsValidator(this.metadata.keywords);
+      });
     },
     temporalCoverageFromValidate() {
       this.temporalCoverageFromValidation = temporalCoverageFromValidator(this.metadata.temporal_coverage_from);
@@ -743,13 +745,17 @@ export default {
       );
     },
     locationsValidate() {
-      this.locationsValidation = locationsValidator(this.metadata.locations);
+      this.$nextTick(() => {
+        this.locationsValidation = locationsValidator(this.metadata.locations);
+      });
     },
     taxaCoveredValidate() {
       this.taxaCoveredValidation = taxaValidator(this.metadata.taxa_covered);
     },
     collectionMethodValidate() {
-      this.collectionMethodsValidation = collectionValidator(this.metadata.collection_methods);
+      this.$nextTick(() => {
+        this.collectionMethodsValidation = collectionValidator(this.metadata.collection_methods);
+      });
     },
     dataSourceValidate() {
       this.dataSourceValidation = dataSourceValidator(this.metadata.data_source_doi, this.metadata.data_source_url);
@@ -767,19 +773,27 @@ export default {
       this.contactEmailValidation = emailValidator(this.metadata.contact_email);
     },
     storedFormatValidate() {
-      this.storedFormatValidation = storedFormatValidator(this.metadata.stored_format);
+      this.$nextTick(() => {
+        this.storedFormatValidation = storedFormatValidator(this.metadata.stored_format);
+      });
     },
     availableFormatsValidate() {
-      this.availableFormatsValidation = availableFormatsValidator(this.metadata.available_formats);
+      this.$nextTick(() => {
+        this.availableFormatsValidation = availableFormatsValidator(this.metadata.available_formats);
+      });
     },
     accessRightsValidate() {
-      this.accessRightsValidation = accessRightsValidator(this.metadata.access_rights);
+      this.$nextTick(() => {
+        this.accessRightsValidation = accessRightsValidator(this.metadata.access_rights);
+      });
     },
     useRestrictionsValidate() {
       this.useRestrictionsValidation = useRestrictionsValidator(this.metadata.use_restrictions);
     },
     securityClassificationValidate() {
-      this.securityClassificationValidation = securityClassificationValidator(this.metadata.security_classification);
+      this.$nextTick(() => {
+        this.securityClassificationValidation = securityClassificationValidator(this.metadata.security_classification);
+      });
     },
     generalisationsValidate() {
       this.generalisationsValidation = generalisationsValidator(this.metadata.generalisations);
