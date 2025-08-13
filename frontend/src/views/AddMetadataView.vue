@@ -27,7 +27,7 @@
           :message="this.keywordValidation.keywordClasses === 'is-danger' ? 'Keywords must not be empty' : ''"
           >* Keywords:</o-field
         >
-        <o-dropdown v-if="keywordsOptions" v-model="keywords" @focusout="this.keywordValidate" multiple role="list">
+        <o-dropdown v-if="keywordsOptions" v-model="keywords" @change="this.keywordValidate" multiple role="list">
           <template #trigger>
             <o-button variant="primary" :class="this.keywordValidation.keywordClasses" type="button">
               <span v-if="keywords">
@@ -154,7 +154,7 @@
           :message="this.locationsValidation.locationsClasses === 'is-danger' ? 'Location must not be empty' : ''"
           >* Locations:</o-field
         >
-        <o-dropdown v-if="locationsOptions" v-model="locations" multiple ole="list" @focusout="this.locationsValidate">
+        <o-dropdown v-if="locationsOptions" v-model="locations" multiple ole="list" @change="this.locationsValidate">
           <template #trigger>
             <o-button variant="primary" :class="this.locationsValidation.locationsClasses" type="button">
               <span v-if="locations"> {{ locations_text }}<span v-if="locations.length > 7">...</span> </span>
@@ -190,7 +190,7 @@
           "
           >* Collection Methods:</o-field
         >
-        <o-dropdown v-model="collection_methods" @focusout="this.collectionMethodValidate" multiple role="list">
+        <o-dropdown v-model="collection_methods" @change="this.collectionMethodValidate" multiple role="list">
           <template #trigger>
             <o-button variant="primary" type="button" :class="collectionMethodsValidation.collectionMethodsClasses">
               <span>{{ collection_methods_text }}</span>
@@ -307,7 +307,7 @@
           "
           >* Stored Format:</o-field
         >
-        <o-dropdown v-model="stored_format" @focusout="this.storedFormatValidate">
+        <o-dropdown v-model="stored_format" @change="this.storedFormatValidate">
           <template #trigger>
             <o-button variant="primary" type="button" :class="this.storedFormatValidation.storedFormatClasses">
               <span>{{ stored_format ? stored_format : 'Select a stored format' }}</span>
@@ -329,7 +329,7 @@
           "
           >* Available Formats:</o-field
         >
-        <o-dropdown v-model="available_formats" multiple role="list" @focusout="this.availableFormatsValidate">
+        <o-dropdown v-model="available_formats" multiple role="list" @change="this.availableFormatsValidate">
           <template #trigger>
             <o-button variant="primary" :class="this.availableFormatsValidation.availableFormatsClasses" type="button">
               <span>{{ available_formats_text }}</span>
@@ -349,7 +349,7 @@
           "
           >* Access Rights:</o-field
         >
-        <o-dropdown v-model="access_rights" @focusout="this.accessRightsValidate">
+        <o-dropdown v-model="access_rights" @change="this.accessRightsValidate">
           <template #trigger>
             <o-button variant="primary" :class="this.accessRightsValidation.accessRightsClasses">
               <span>{{ access_rights ? access_rights : 'Please select an access right' }}</span>
@@ -389,7 +389,7 @@
           "
           >* Security Classification:</o-field
         >
-        <o-dropdown v-model="security_classification" @focusout="this.securityClassificationValidate">
+        <o-dropdown v-model="security_classification" @change="this.securityClassificationValidate">
           <template #trigger>
             <o-button variant="primary" :class="this.securityClassificationValidation.securityClassificationClasses">
               <span>{{ security_classification ? security_classification : 'Select a security classification' }}</span>
@@ -703,7 +703,9 @@ export default {
       this.titleValidation = titleValidator(this.title);
     },
     keywordValidate() {
-      this.keywordValidation = keywordsValidator(this.keywords);
+      this.$nextTick(() => {
+        this.keywordValidation = keywordsValidator(this.keywords);
+      });
     },
     temporalCoverageFromValidate() {
       this.temporalCoverageFromValidation = temporalCoverageFromValidator(this.temporal_coverage_from);
@@ -724,13 +726,17 @@ export default {
       this.westBoundingCoordinateValidation = westCoordinateValidator(this.west_bounding_coordinate);
     },
     locationsValidate() {
-      this.locationsValidation = locationsValidator(this.locations);
+      this.$nextTick(() => {
+        this.locationsValidation = locationsValidator(this.locations);
+      });
     },
     taxaCoveredValidate() {
       this.taxaCoveredValidation = taxaValidator(this.taxa_covered);
     },
     collectionMethodValidate() {
-      this.collectionMethodsValidation = collectionValidator(this.collection_methods);
+      this.$nextTick(() => {
+        this.collectionMethodsValidation = collectionValidator(this.collection_methods);
+      });
     },
     dataSourceValidate() {
       this.dataSourceValidation = dataSourceValidator(this.data_source_doi, this.data_source_url);
@@ -748,19 +754,27 @@ export default {
       this.contactEmailValidation = emailValidator(this.contact_email);
     },
     storedFormatValidate() {
-      this.storedFormatValidation = storedFormatValidator(this.stored_format);
+      this.$nextTick(() => {
+        this.storedFormatValidation = storedFormatValidator(this.stored_format);
+      });
     },
     availableFormatsValidate() {
-      this.availableFormatsValidation = availableFormatsValidator(this.available_formats);
+      this.$nextTick(() => {
+        this.availableFormatsValidation = availableFormatsValidator(this.available_formats);
+      });
     },
     accessRightsValidate() {
-      this.accessRightsValidation = accessRightsValidator(this.access_rights);
+      this.$nextTick(() => {
+        this.accessRightsValidation = accessRightsValidator(this.access_rights);
+      });
     },
     useRestrictionsValidate() {
       this.useRestrictionsValidation = useRestrictionsValidator(this.use_restrictions);
     },
     securityClassificationValidate() {
-      this.securityClassificationValidation = securityClassificationValidator(this.security_classification);
+      this.$nextTick(() => {
+        this.securityClassificationValidation = securityClassificationValidator(this.security_classification);
+      });
     },
     generalisationsValidate() {
       this.generalisationsValidation = generalisationsValidator(this.generalisations);
