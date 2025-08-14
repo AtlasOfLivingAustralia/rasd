@@ -674,6 +674,57 @@ export default {
         this.embargo_release_date = null;
       }
     },
+    title() {
+      this.titleValidate();
+    },
+    keywords() {
+      this.keywordValidate();
+    },
+    temporal_coverage_from() {
+      this.temporalCoverageFromValidate();
+    },
+    temporal_coverage_to() {
+      this.temporalCoverageToValidate();
+    },
+    north_bounding_coordinate() {
+      this.northBoundingCoordinateValidate();
+    },
+    south_bounding_coordinate() {
+      this.southBoundingCoordinateValidate();
+    },
+    east_bounding_coordinate() {
+      this.eastBoundingCoordinateValidate();
+    },
+    west_bounding_coordinate() {
+      this.westBoundingCoordinateValidate();
+    },
+    locations() {
+      this.locationsValidate();
+    },
+    taxa_covered() {
+      this.taxaCoveredValidate();
+    },
+    collection_methods() {
+      this.collectionMethodValidate();
+    },
+    data_source_doi() {
+      this.dataSourceValidate();
+    },
+    data_source_url() {
+      this.dataSourceValidate();
+    },
+    contact_organisation() {
+      this.contactOrganisationValidate();
+    },
+    contact_position() {
+      this.contactPositionValidate();
+    },
+    contact_email() {
+      this.contactEmailValidate();
+    },
+    stored_format() {
+      this.storedFormatValidate();
+    },
   },
   methods: {
     async getOptions() {
