@@ -16,9 +16,21 @@ book:
     background: primary
     title: "RASD Framework"
     href: "https://rasd.org.au"
+    right:
+      - text: "Framework"
+        href: "./pdf-html/index.html"
+      - text: "RASD Service"
+        href: "https://service.rasd.org.au/"
+      - text: "Project Overview"
+        href: "./pdf/RASD-Project-Overview.pdf"
+      - text: "FAQs"
+        href: "./pdf/RASD-FAQs.pdf"
   page-footer:
     background: info
-    center: 
+    left:
+      - text: "Contact us"
+        href: "mailto:info@rasd.org.au"
+    center:
       - text: "rasd.org.au"
         href: "https://rasd.org.au"
   chapters:
@@ -78,4 +90,3 @@ format:
     documentclass: scrreprt
 
 editor: visual
-
