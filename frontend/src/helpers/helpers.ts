@@ -321,3 +321,11 @@ export function notifyError(message: string): void {
     closable: true,
   });
 }
+
+export const abstractValidator = (abstract: string): object => {
+  const abstractValid = !isEmpty(abstract, { ignore_whitespace: true });
+  if (abstractValid) {
+    return { valid: abstractValid, abstractClasses: successClasses };
+  }
+  return { valid: abstractValid, abstractClasses: dangerClasses };
+};
