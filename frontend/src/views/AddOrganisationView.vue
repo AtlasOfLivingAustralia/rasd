@@ -42,6 +42,7 @@
             v-model="email">
           </o-input>
         </o-field>
+        <p v-if="emailError" class="help is-danger">{{ emailError }}</p>
       </div>
       <div class="field is-grouped">
         <o-button
@@ -61,6 +62,7 @@ import { createOrganisationAPI } from '../api/api.ts';
 import { abnValidator, emailValidator, nameValidator } from '../helpers/helpers';
 import { useProgrammatic } from '@oruga-ui/oruga-next';
 import PageHeading from '@/components/PageHeading.vue';
+import { useUserDataStore } from '@/store';
 
 export default {
   name: 'AddOrganisationView',
@@ -82,6 +84,7 @@ export default {
         valid: false,
         emailClasses: '',
       },
+      emailError: '',
       notification: null,
       loading: false,
     };
@@ -100,7 +103,15 @@ export default {
       this.abnValidation = abnValidator(abn);
     },
     validateEmail(email) {
+      const userStore = useUserDataStore();
       this.emailValidation = emailValidator(email);
+      if (email === userStore.email) {
+        this.emailValidation.valid = false;
+        this.emailValidation.emailClasses = 'is-danger';
+        this.emailError = 'Organisation email cannot be the same as your work email.';
+      } else {
+        this.emailError = '';
+      }
     },
     async createOrganisation() {
       const { oruga } = useProgrammatic();
