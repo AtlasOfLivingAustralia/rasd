@@ -26,7 +26,7 @@ if __name__ == '__main__':
 
     # Change footer and navbar url to rasd
     url = f"{sub_domain}.{hosted_zone}"
-    html_url = f"https://{url}"
+    html_url = f"https://{url}/"
     env['book']['navbar']['href'] = html_url
     env['book']['page-footer']['center'][0]['text'] = url
     env['book']['page-footer']['center'][0]['href'] = html_url
