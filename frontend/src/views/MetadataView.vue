@@ -691,6 +691,72 @@ export default {
           ? null
           : new Date(this.metadata.embargo_release_date);
     },
+    titleValidation() {
+      this.titleValidate();
+    },
+    keywordValidation() {
+      this.keywordValidate();
+    },
+    temporalCoverageFromValidation() {
+      this.temporalCoverageFromValidate();
+    },
+    temporalCoverageToValidation() {
+      this.temporalCoverageToValidate();
+    },
+    northBoundingCoordinateValidation() {
+      this.northBoundingCoordinateValidate();
+    },
+    southBoundingCoordinateValidation() {
+      this.southBoundingCoordinateValidate();
+    },
+    eastBoundingCoordinateValidation() {
+      this.eastBoundingCoordinateValidate();
+    },
+    westBoundingCoordinateValidation() {
+      this.westBoundingCoordinateValidate();
+    },
+    locationsValidation() {
+      this.locationsValidate();
+    },
+    taxaCoveredValidation() {
+      this.taxaCoveredValidate();
+    },
+    collectionMethodsValidation() {
+      this.collectionMethodValidate();
+    },
+    dataSourceValidation() {
+      this.dataSourceValidate();
+    },
+    custodianValidation() {
+      this.custodianValidate();
+    },
+    contactOrganisationValidation() {
+      this.contactOrganisationValidate();
+    },
+    contactPositionValidation() {
+      this.contactPositionValidate();
+    },
+    contactEmailValidation() {
+      this.contactEmailValidate();
+    },
+    storedFormatValidation() {
+      this.storedFormatValidate();
+    },
+    availableFormatsValidation() {
+      this.availableFormatsValidate();
+    },
+    accessRightsValidation() {
+      this.accessRightsValidate();
+    },
+    useRestrictionsValidation() {
+      this.useRestrictionsValidate();
+    },
+    securityClassificationValidation() {
+      this.securityClassificationValidate();
+    },
+    generalisationsValidation() {
+      this.generalisationsValidate();
+    },
   },
   methods: {
     setEditMode() {

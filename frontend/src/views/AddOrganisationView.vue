@@ -86,7 +86,17 @@ export default {
       loading: false,
     };
   },
-  watch: {},
+  watch: {
+    name(newVal) {
+      this.nameValidation.valid = nameValidator(newVal).valid;
+    },
+    abn(newVal) {
+      this.abnValidation.valid = abnValidator(newVal).valid;
+    },
+    email(newVal) {
+      this.emailValidation.valid = emailValidator(newVal).valid;
+    },
+  },
   computed: {
     canSubmitForm() {
       return !(this.abnValidation.valid && this.nameValidation.valid && this.emailValidation.valid);

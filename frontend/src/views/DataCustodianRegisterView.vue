@@ -218,6 +218,21 @@ export default {
         this.lookupABN = '';
       }
     },
+    firstName(newVal) {
+      this.validateFirstName(newVal);
+    },
+    lastName(newVal) {
+      this.validateLastName(newVal);
+    },
+    workEmail(newVal) {
+      this.validateWorkEmail(newVal);
+    },
+    lookupABN(newVal) {
+      this.validateABN(newVal);
+    },
+    organisationEmail(newVal) {
+      this.validateOrganisationEmail(newVal);
+    },
   },
   methods: {
     async getOptions() {
