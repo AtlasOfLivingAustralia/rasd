@@ -10,6 +10,9 @@
           <o-button v-if="!this.editMode" class="button mr-4 is-align-items-self-end" @click="this.setEditMode()"
             >Edit</o-button
           >
+          <o-button v-if="!this.editMode" class="button is-danger is-align-items-self-end" @click="this.confirmDelete()"
+            >Delete</o-button
+          >
         </div>
       </div>
       <h2 class="is-size-3">Metadata details</h2>
@@ -472,6 +475,7 @@
       </div>
       <div class="is-flex is-justify-content-start">
         <o-button v-if="!this.editMode" class="button mr-4" @click="this.setEditMode()">Edit</o-button>
+        <o-button v-if="!this.editMode" class="button is-danger mr-4" @click="this.confirmDelete()">Delete</o-button>
         <o-button
           v-if="this.editMode"
           :disabled="canSubmitForm || this.loading"
@@ -499,6 +503,7 @@ import {
   getKeywordsAPI,
   getLocationsAPI,
   getSecurityClassificationsAPI,
+  deleteMetadataAPI,
 } from '../api/api';
 import {
   accessRightsValidator,
@@ -579,7 +584,7 @@ export default {
       if (this.metadata.locations?.length === 0) {
         return 'Select a location';
       } else {
-        return this.metadata?.locations.slice(0, 7).join(', ').toString();
+        return this.metadata?.locations.slice(0, 7).toString();
       }
     },
     collection_methods_text() {
@@ -949,6 +954,51 @@ export default {
       this.locationsOptions = await getLocationsAPI();
       this.securityClassificationOptions = await getSecurityClassificationsAPI();
       this.loading = false;
+    },
+    confirmDelete() {
+      if (
+        confirm(`Are you sure you want to delete the metadata "${this.metadata.title}"? This action cannot be undone.`)
+      ) {
+        this.deleteMetadata();
+      }
+    },
+    async deleteMetadata() {
+      const { oruga } = useProgrammatic();
+      this.loading = true;
+
+      try {
+        const response = await deleteMetadataAPI(this.metadata.id);
+        this.loading = false;
+
+        if (response[1]) {
+          oruga.notification.open({
+            duration: 5000,
+            message: response[0],
+            variant: 'success',
+            position: 'top',
+            closable: true,
+          });
+
+          this.$router.push('/metadata');
+        } else {
+          oruga.notification.open({
+            duration: 10000,
+            message: response[0],
+            variant: 'danger',
+            position: 'top',
+            closable: true,
+          });
+        }
+      } catch (error) {
+        this.loading = false;
+        oruga.notification.open({
+          duration: 10000,
+          message: 'An error occurred while deleting the metadata.',
+          variant: 'danger',
+          position: 'top',
+          closable: true,
+        });
+      }
     },
   },
 };
