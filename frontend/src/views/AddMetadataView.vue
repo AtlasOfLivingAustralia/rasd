@@ -26,7 +26,7 @@
         <o-input
           v-model="abstract"
           :class="this.abstractValidation.abstractClasses"
-          maxlength="500"
+          maxlength="2000"
           @blur="this.abstractValidate"></o-input>
       </div>
       <div class="field">

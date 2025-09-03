@@ -37,7 +37,7 @@
         <o-input
           v-model="metadata.abstract"
           :class="this.abstractValidation.abstractClasses"
-          maxlength="500"
+          maxlength="2000"
           :disabled="!editMode"
           @blur="this.abstractValidate"></o-input>
       </div>

@@ -20,7 +20,7 @@ class RASDMetadata(base.BaseModel):
     """RASDMetadata Model."""
     id: uuid.UUID = pydantic.Field(default_factory=uuid.uuid4)  # noqa: A003
     title: str = pydantic.Field(max_length=200)
-    abstract: str = pydantic.Field(max_length=500)
+    abstract: str = pydantic.Field(max_length=2000)
     keywords: list[metadata_vocabs.keywords.Keyword]
     locations: list[metadata_vocabs.locations.Location]
     organisation_id: uuid.UUID
@@ -49,7 +49,7 @@ class RASDMetadata(base.BaseModel):
 
     # Database only computed fields
     title_lower: Optional[str] = pydantic.Field(max_length=200)  # database only field for searching
-    abstract_lower: Optional[str] = pydantic.Field(max_length=500)  # database only field for searching
+    abstract_lower: Optional[str] = pydantic.Field(max_length=2000)  # database only field for searching
 
     @pydantic.root_validator
     def validate_data_sources(cls, values: dict[str, Any]) -> dict[str, Any]:
