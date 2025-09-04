@@ -86,6 +86,9 @@ format:
     linestretch: 1.7
     toc-title: "On this page"
     tbl-colwidths: [30,50,60,40]
+    lightbox:
+      match: auto
+      effect: zoom
   pdf:
     documentclass: scrreprt
 

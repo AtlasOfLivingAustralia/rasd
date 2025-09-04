@@ -161,4 +161,5 @@ For optimised viewing online, it is presented in 4 parts below by RASD type:
 
 ## Figure 2 - RASD Data Handling Process (see also Table: Restricted Access Treatments and Metadata)
 
-![](images/RASD-fig-2-data-handling-process.png){fig-alt="flowchart showing the workflow of data request through to release or being withheld"}
+![](images/RASD-fig-2-data-handling-process.png){.lightbox fig-alt="flowchart showing the workflow of data request through to release or being withheld" width="100%"}
+

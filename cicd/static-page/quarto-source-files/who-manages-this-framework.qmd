@@ -6,7 +6,7 @@ The framework will be reviewed after 12 months and then updated every three year
 
 A high-level view of how this framework interacts with data custodians and users is shown in Figure 1.
 
-![Restricted Access Species Data Governance](images/rasd-fig-1.png "Title: Restricted Access Species Data Governance"){#fig-1 fig-alt="Restricted Access Species Data Governance flowchart, indicating the RASD Framework defines the processes, governance and standards for data custidians, and by extension, data requestors" fig-align="left"}
+![Restricted Access Species Data Governance](images/rasd-fig-1.png "Title: Restricted Access Species Data Governance"){#fig-1 .lightbox fig-alt="Restricted Access Species Data Governance flowchart, indicating the RASD Framework defines the processes, governance and standards for data custidians, and by extension, data requestors" fig-align="left"}
 
 Organisations and individuals interested in commenting on the framework may address their comments to the Secretariat for the National Framework for the Sharing of Restricted Access Species Data in Australia:
 
