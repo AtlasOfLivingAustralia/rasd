@@ -12,12 +12,12 @@ from typing import Optional
 
 secret_name = os.environ.get("RASD_SECRETS_NAME")
 
-sm_client = boto3.client('secretsmanager')
+sm_client = boto3.client("secretsmanager")
 
 # ARN
 try:
     response = sm_client.get_secret_value(SecretId=secret_name)
-    secrets = json.loads(response['SecretString'])
+    secrets = json.loads(response["SecretString"])
     print("type of secrets from arn:", type(secrets))
     print(secrets.keys())
 except Exception as e:

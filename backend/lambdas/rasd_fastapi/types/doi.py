@@ -18,7 +18,7 @@ class DOI(str):
         There is no defined limit on the length of the DOI name, or of the DOI
         prefix or DOI suffix. The prefix consists of the number 10, a dot ".",
         and the registrant code.
-    
+
     Source 2: https://support.datacite.org/docs/doi-basics
         The registrant code is currently always numeric, and can be subdivided
         with additional dots ".". The suffix for a DOI can be (almost) any

@@ -28,7 +28,11 @@ eval $command
 
 # Step 2
 #   Install poetry, to create requirements.txt, used by SAM
-command="pipx install poetry==${GLOBAL_POETRY_VERSION:-1.3.2}"
+command="pipx install poetry==${GLOBAL_POETRY_VERSION:-2.1.4}"
+echo "$0: running $command"
+eval $command
+#   Install export plugin for Poetry 2.x
+command="$poetry_install_path/poetry self add poetry-plugin-export"
 echo "$0: running $command"
 eval $command
 #   fix $PATH so we can use poetry immediately without restarting shell

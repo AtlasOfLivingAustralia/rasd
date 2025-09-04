@@ -447,7 +447,7 @@ async def update_dataset_request(
     # Determine Permissions
     is_custodian = user.is_custodian() and user.organisation_id == dataset_request.custodian_id
 
-    # Check Permissions    
+    # Check Permissions
     if not user.is_admin() and not is_custodian:
         # Not allowed. We raise a `404` (rather than `403`) so that information
         # is not leaked
@@ -498,7 +498,7 @@ async def acknowledge_dataset_request(
     # Determine Permissions
     is_custodian = user.is_custodian() and user.organisation_id == dataset_request.custodian_id
 
-    # Check Permissions    
+    # Check Permissions
     if not user.is_admin() and not is_custodian:
         # Not allowed. We raise a `404` (rather than `403`) so that information
         # is not leaked
@@ -561,7 +561,7 @@ async def approve_dataset_request(
     # Determine Permissions
     is_custodian = user.is_custodian() and user.organisation_id == dataset_request.custodian_id
 
-    # Check Permissions    
+    # Check Permissions
     if not user.is_admin() and not is_custodian:
         # Not allowed. We raise a `404` (rather than `403`) so that information
         # is not leaked
@@ -624,7 +624,7 @@ async def decline_dataset_request(
     # Determine Permissions
     is_custodian = user.is_custodian() and user.organisation_id == dataset_request.custodian_id
 
-    # Check Permissions    
+    # Check Permissions
     if not user.is_admin() and not is_custodian:
         # Not allowed. We raise a `404` (rather than `403`) so that information
         # is not leaked
@@ -687,7 +687,7 @@ async def agreement_sent_dataset_request(
     # Determine Permissions
     is_custodian = user.is_custodian() and user.organisation_id == dataset_request.custodian_id
 
-    # Check Permissions    
+    # Check Permissions
     if not user.is_admin() and not is_custodian:
         # Not allowed. We raise a `404` (rather than `403`) so that information
         # is not leaked
@@ -750,7 +750,7 @@ async def complete_dataset_request(
     # Determine Permissions
     is_custodian = user.is_custodian() and user.organisation_id == dataset_request.custodian_id
 
-    # Check Permissions    
+    # Check Permissions
     if not user.is_admin() and not is_custodian:
         # Not allowed. We raise a `404` (rather than `403`) so that information
         # is not leaked

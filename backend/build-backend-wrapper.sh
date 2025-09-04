@@ -23,7 +23,7 @@
 # e.g. if not set, script will not stop on this error: build-backend.sh: line 6: 1: Please provide the name of the lambda on $1! e.g. rasd-fastapi
 set -e
 
-PYTHON_VERSION="${PYTHON_VERSION:-3.9.16}"
+PYTHON_VERSION="${PYTHON_VERSION:-3.13.0}"
 DOCKER_IMAGE="python:${PYTHON_VERSION}-slim-buster"
 
 if [[ "$1" == "--help" ]] || [[ -z "$1" ]]; then
