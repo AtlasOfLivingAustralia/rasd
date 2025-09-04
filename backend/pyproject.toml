@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "rasd"
-version = "0.1.0"
-description = "RASD Python AWS Lambda backend REST API using Poetry and Pulumi"
+version = "1.1.0"
+description = "RASD Python AWS Lambda backend REST API using Poetry and Fast API"
 authors = ["Gaia Resources <dev@gaiaresources.com.au>"]
 readme = "README.md"
 packages = [
@@ -9,7 +9,7 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = "~3.9"
+python = "~3.13"
 
 [tool.poetry.group.rasd_fastapi.dependencies]
 fastapi = "^0.92.0"
@@ -24,7 +24,7 @@ jinja2 = "^3.1.2"
 uvicorn = "^0.20.0"
 poethepoet = "^0.18.1"
 mypy = "^1.0.1"
-ruff = "^0.0.247"
+ruff = "^0.6.0"
 pytest = "^7.2.1"
 pytest-cov = "^4.0.0"
 covdefaults = "^2.2.2"
@@ -35,12 +35,14 @@ boto3-stubs = {extras = ["dynamodb", "cognito-idp", "sesv2"], version = "^1.26.7
 serve = "uvicorn lambdas.rasd_fastapi.main:app --reload"
 test = "pytest tests --cov=lambdas"
 type = "mypy tests lambdas"
-lint = "ruff tests lambdas"
+lint = "ruff check tests lambdas"
 clean = "rm -rf **/.ruff_cache **/.coverage **/.mypy_cache **/.pytest_cache **/__pycache__"
 
 [tool.ruff]
-target-version = "py39"
+target-version = "py313"
 line-length = 120
+
+[tool.ruff.lint]
 select = [
     "F",    # flake8
     "E",    # pycodestyle errors
@@ -57,11 +59,11 @@ ignore = [
     "D401"  # imperative mood - overly restrictive
 ]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]  # allow unused imports in `__init__.py`
 "tests/*.py" = ["S101"]   # allow asserts in unit tests
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 convention = "google"
 
 [tool.pytest.ini_options]

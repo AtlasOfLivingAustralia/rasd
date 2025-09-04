@@ -5,7 +5,7 @@
 import re
 
 # Typing
-from typing import Any, Callable, Iterator
+from typing import Any, Callable, ClassVar, Iterator
 
 
 class Abn(str):
@@ -20,7 +20,7 @@ class Abn(str):
     # ABN Rules
     # See: https://abr.business.gov.au/Help/AbnFormat
     ABN_FIRST_DIGIT_SUBTRACTION = 1
-    ABN_WEIGHTINGS = [10, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19]
+    ABN_WEIGHTINGS: ClassVar[list[int]] = [10, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19]
     ABN_MODULUS = 89
     ABN_REMAINDER = 0
 
@@ -76,7 +76,7 @@ class Abn(str):
         # See: https://abr.business.gov.au/Help/AbnFormat
         digits = [int(character) for character in v]  # Coerce ABN to list of digits
         digits[0] -= cls.ABN_FIRST_DIGIT_SUBTRACTION  # Substract required value from the left most digit
-        digits = [d * w for (d, w) in zip(digits, cls.ABN_WEIGHTINGS)]  # Multiply by required weightings
+        digits = [d * w for (d, w) in zip(digits, cls.ABN_WEIGHTINGS, strict=False)]  # Multiply by required weightings
         total = sum(digits)  # Sum the digits
         remainder = total % cls.ABN_MODULUS  # Divide by required value, noting the remainder
         if remainder != cls.ABN_REMAINDER:  # Ensure remainder is expected
