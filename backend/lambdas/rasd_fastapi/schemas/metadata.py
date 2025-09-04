@@ -19,7 +19,7 @@ from typing import Optional
 class RASDMetadataCreate(base.BaseSchema):
     """RASDMetadata Create Schema."""
     title: str = pydantic.Field(max_length=200)
-    abstract: Optional[str] = pydantic.Field(max_length=500)
+    abstract: str = pydantic.Field(max_length=500)
     keywords: list[metadata_vocabs.keywords.Keyword]
     temporal_coverage_from: types.date.ISO8601Date
     temporal_coverage_to: types.date.ISO8601Date

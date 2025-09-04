@@ -20,7 +20,7 @@ class RASDMetadata(base.BaseModel):
     """RASDMetadata Model."""
     id: uuid.UUID = pydantic.Field(default_factory=uuid.uuid4)  # noqa: A003
     title: str = pydantic.Field(max_length=200)
-    abstract: Optional[str] = pydantic.Field(max_length=500)
+    abstract: str = pydantic.Field(max_length=500)
     keywords: list[metadata_vocabs.keywords.Keyword]
     locations: list[metadata_vocabs.locations.Location]
     organisation_id: uuid.UUID

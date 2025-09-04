@@ -28,8 +28,18 @@
           @blur="this.titleValidate"></o-input>
       </div>
       <div class="field">
-        <o-field class="label">Abstract:</o-field>
-        <o-input v-model="metadata.abstract" :disabled="!editMode" maxlength="500"></o-input>
+        <o-field
+          class="label"
+          :variant="this.abstractValidation.abstractClasses === 'is-danger' ? 'danger' : ''"
+          :message="this.abstractValidation.abstractClasses === 'is-danger' ? 'Abstract must not be empty' : ''"
+          >* Abstract:</o-field
+        >
+        <o-input
+          v-model="metadata.abstract"
+          :class="this.abstractValidation.abstractClasses"
+          maxlength="500"
+          :disabled="!editMode"
+          @blur="this.abstractValidate"></o-input>
       </div>
       <div class="field">
         <o-field
@@ -505,6 +515,7 @@ import {
   titleValidator,
   useRestrictionsValidator,
   westCoordinateValidator,
+  abstractValidator,
 } from '../helpers/helpers';
 import { useProgrammatic } from '@oruga-ui/oruga-next';
 export default {
@@ -670,6 +681,10 @@ export default {
       generalisationsValidation: {
         valid: true,
         generalisationsClasses: '',
+      },
+      abstractValidation: {
+        valid: true,
+        abstractClasses: '',
       },
       accessRightsOptions: [],
       collectionMethodsOptions: [],
@@ -863,6 +878,9 @@ export default {
     },
     generalisationsValidate() {
       this.generalisationsValidation = generalisationsValidator(this.metadata.generalisations);
+    },
+    abstractValidate() {
+      this.abstractValidation = abstractValidator(this.metadata.abstract);
     },
     async editMetadata() {
       const { oruga } = useProgrammatic();

@@ -17,8 +17,17 @@
           @blur="this.titleValidate"></o-input>
       </div>
       <div class="field">
-        <o-field class="label">Abstract:</o-field>
-        <o-input v-model="abstract" maxlength="500"></o-input>
+        <o-field
+          class="label"
+          :variant="this.abstractValidation.abstractClasses === 'is-danger' ? 'danger' : ''"
+          :message="this.abstractValidation.abstractClasses === 'is-danger' ? 'Abstract must not be empty' : ''"
+          >* Abstract:</o-field
+        >
+        <o-input
+          v-model="abstract"
+          :class="this.abstractValidation.abstractClasses"
+          maxlength="500"
+          @blur="this.abstractValidate"></o-input>
       </div>
       <div class="field">
         <o-field
@@ -446,6 +455,7 @@ import {
   getSecurityClassificationsAPI,
 } from '../api/api';
 import {
+  abstractValidator,
   accessRightsValidator,
   availableFormatsValidator,
   collectionValidator,
@@ -484,6 +494,7 @@ export default {
     canSubmitForm() {
       return !(
         this.titleValidation.valid &&
+        this.abstractValidation.valid &&
         this.keywordValidation.valid &&
         this.temporalCoverageFromValidation.valid &&
         this.temporalCoverageToValidation.valid &&
@@ -499,6 +510,7 @@ export default {
         this.contactPositionValidation.valid &&
         this.contactEmailValidation.valid &&
         this.storedFormatValidation.valid &&
+        this.availableFormatsValidation.valid &&
         this.accessRightsValidation.valid &&
         this.useRestrictionsValidation.valid &&
         this.securityClassificationValidation.valid &&
@@ -542,6 +554,10 @@ export default {
         titleClasses: '',
       },
       abstract: '',
+      abstractValidation: {
+        valid: false,
+        abstractClasses: '',
+      },
       keywords: null,
       keywordValidation: {
         valid: false,
@@ -752,6 +768,9 @@ export default {
     },
     titleValidate() {
       this.titleValidation = titleValidator(this.title);
+    },
+    abstractValidate() {
+      this.abstractValidation = abstractValidator(this.abstract);
     },
     keywordValidate() {
       this.$nextTick(() => {
