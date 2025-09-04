@@ -84,4 +84,4 @@ It is best practice to enable tracking of data citations by minting a Digital Ob
 
 ## Figure 3- RASD Data Access Request Assessment Process
 
-![](images/RASD-fig-3-data-request-process.png){fig-alt="Flowchart showing the data access request process, through to if the request is approved or denied" width="91"}
+![](images/RASD-fig-3-data-request-process.png){.lightbox fig-alt="Flowchart showing the data access request process, through to if the request is approved or denied" width="100%"}

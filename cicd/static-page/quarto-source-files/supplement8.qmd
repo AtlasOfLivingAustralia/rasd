@@ -8,7 +8,7 @@ The figure below provides a high-level process for handing embargoed data.
 
 ## Figure: Process for Handling Requests for Embargoed RASD
 
-![](images/RASD-figure-supp-8-embargoed.png)
+![](images/RASD-figure-supp-8-embargoed.png){.lightbox}
 
 ## Example scenarios
 

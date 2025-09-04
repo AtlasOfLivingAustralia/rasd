@@ -8,7 +8,7 @@ Data custodians should generally retain responsibility for applying the followin
 
 ## Figure: Public Data Release Process
 
-![flowchart showing public data release process](images/RASD-fig-supp-6-public-release.png)\
+![](images/RASD-fig-supp-6-public-release.png){.lightbox fig-alt="flowchart showing public data release process"}\
 
 ## Data Removal
 
