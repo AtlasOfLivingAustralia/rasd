@@ -553,6 +553,14 @@ export default defineComponent({
     async getAccessRequests(cursor?: string | undefined) {
       const response = await getAccessRequestsAPI(this.role, this.limit, cursor);
       this.dataAccessRequests = response.data?.results || [];
+
+      // Sort by date descending (most recent first)
+      this.dataAccessRequests.sort((a, b) => {
+        const dateA = new Date(a.datasetRequests[0]?.audit[0]?.at || 0).getTime();
+        const dateB = new Date(b.datasetRequests[0]?.audit[0]?.at || 0).getTime();
+        return dateB - dateA;
+      });
+
       this.currentCursor = response.data?.cursor;
       this.idFilter = undefined;
     },

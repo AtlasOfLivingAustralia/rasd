@@ -57,6 +57,13 @@ export default {
     async getOrganisations() {
       this.loading = true;
       this.organisations = await getOrganisationsAPI();
+      if (this.organisations) {
+        this.organisations.sort((a, b) => {
+          const nameA = (a.name || '').toLowerCase();
+          const nameB = (b.name || '').toLowerCase();
+          return nameA.localeCompare(nameB);
+        });
+      }
     },
     routeToAddOrganisation() {
       this.$router.push('/organisations/add');

@@ -149,6 +149,13 @@ export default {
     async getMetadata(count = 20, cursor = '') {
       this.loading = true;
       this.metadata = await getMetadataListAPI(count, cursor);
+      if (this.metadata?.results) {
+        this.metadata.results.sort((a, b) => {
+          const titleA = (a.title || '').toLowerCase();
+          const titleB = (b.title || '').toLowerCase();
+          return titleA.localeCompare(titleB);
+        });
+      }
     },
     routeToAddMetadata() {
       this.$router.push('/metadata/add');
