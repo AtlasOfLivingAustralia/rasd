@@ -302,8 +302,7 @@ Resources:
                     { "name":"RASD_SECRETS_NAME", "value":"#{ExportConfigNS.SECRET_KEY_NAME}" },
                     { "name":"AWS_COGNITO_POOL_ID", "value":"#{CloudFormationOutNS.CognitoPoolId}" },
                     { "name":"AWS_COGNITO_CLIENT_ID", "value":"#{CloudFormationOutNS.CognitoClientId}" },
-                    { "name":"AWS_COGNITO_CLIENT_SECRET_KEY", "value":"#{CloudFormationOutNS.CognitoClientSecretKey}" },
-                    { "name":"AWS_DYNAMODB_TABLE_ACCESS_REQUESTS", "value":"#{CloudFormationOutNS.DynamodbTableAccessRequests}" }
+                    { "name":"AWS_DYNAMODB_TABLE_ACCESS_REQUESTS", "value":"#{CloudFormationOutNS.DynamoDBTableAccessRequests}" }
                   ]
               InputArtifacts:
                 - Name: SourceArtifact
