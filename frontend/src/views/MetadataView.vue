@@ -38,8 +38,14 @@
           v-model="metadata.abstract"
           :class="this.abstractValidation.abstractClasses"
           maxlength="2000"
+          type="textarea"
+          rows="4"
           :disabled="!editMode"
           @blur="this.abstractValidate"></o-input>
+        <p class="help" :class="{ 'has-text-danger': metadata.abstract && metadata.abstract.length >= 2000 }">
+          {{ metadata.abstract ? metadata.abstract.length : 0 }}/2000 characters
+          <span v-if="metadata.abstract && metadata.abstract.length >= 2000" class="has-text-danger">- Limit reached!</span>
+        </p>
       </div>
       <div class="field">
         <o-field

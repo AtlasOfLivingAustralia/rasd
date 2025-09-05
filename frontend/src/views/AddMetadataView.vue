@@ -27,7 +27,13 @@
           v-model="abstract"
           :class="this.abstractValidation.abstractClasses"
           maxlength="2000"
+          type="textarea"
+          rows="4"
           @blur="this.abstractValidate"></o-input>
+        <p class="help" :class="{ 'has-text-danger': abstract.length >= 2000 }">
+          {{ abstract.length }}/2000 characters
+          <span v-if="abstract.length >= 2000" class="has-text-danger">- Limit reached!</span>
+        </p>
       </div>
       <div class="field">
         <o-field
@@ -896,117 +902,120 @@ export default {
     clearFields() {
       this.title = '';
       this.titleValidation = {
-        valid: false,
+        valid: true,
         titleClasses: '',
       };
       this.abstract = '';
-      this.keywords = '';
+      this.abstractValidation = {
+        valid: true,
+        abstractClasses: '',
+      };
+      this.keywords = null;
       this.keywordValidation = {
-        valid: false,
-        keywordsClasses: '',
+        valid: true,
+        keywordClasses: '',
       };
       this.temporal_coverage_from = null;
       this.temporalCoverageFromValidation = {
-        valid: false,
+        valid: true,
         temporalCoverageFromClasses: '',
       };
       this.temporal_coverage_to = null;
       this.temporalCoverageToValidation = {
-        valid: false,
+        valid: true,
         temporalCoverageToClasses: '',
       };
-      this.north_bounding_coordinate = '';
+      this.north_bounding_coordinate = null;
       this.northBoundingCoordinateValidation = {
-        valid: false,
+        valid: true,
         northBoundingCoordinateClasses: '',
       };
-      this.south_bounding_coordinate = '';
+      this.south_bounding_coordinate = null;
       this.southBoundingCoordinateValidation = {
-        valid: false,
+        valid: true,
         southBoundingCoordinateClasses: '',
       };
-      this.east_bounding_coordinate = '';
+      this.east_bounding_coordinate = null;
       this.eastBoundingCoordinateValidation = {
-        valid: false,
+        valid: true,
         eastBoundingCoordinateClasses: '',
       };
-      this.west_bounding_coordinate = '';
+      this.west_bounding_coordinate = null;
       this.westBoundingCoordinateValidation = {
-        valid: false,
+        valid: true,
         westBoundingCoordinateClasses: '',
       };
-      this.locations = '';
+      this.locations = null;
       this.locationsValidation = {
-        valid: false,
+        valid: true,
         locationsClasses: '',
       };
       this.taxa_covered = '';
       this.taxaCoveredValidation = {
-        valid: false,
+        valid: true,
         taxaCoveredClasses: '',
       };
-      this.collection_methods = '';
+      this.collection_methods = [];
       this.collectionMethodsValidation = {
-        valid: false,
+        valid: true,
         collectionMethodsClasses: '',
       };
       this.data_source_doi = '';
       this.data_source_url = '';
       this.dataSourceValidation = {
-        valid: false,
-        dataSourceDOIValidation: {
-          valid: false,
-          dataSourceDOIClasses: '',
-        },
-        dataSourceURLValidation: {
-          valid: false,
-          dataSourceURLClasses: '',
-        },
+        valid: true,
+        dataSourceDOIClasses: '',
+        dataSourceURLClasses: '',
       };
       this.embargoed = false;
       this.embargo_release_date = null;
       this.custodianValidation = {
+        valid: true,
         custodianClasses: '',
       };
       this.contact_organisation = '';
       this.contactOrganisationValidation = {
-        valid: false,
+        valid: true,
         contactOrganisationClasses: '',
       };
       this.contact_position = '';
       this.contactPositionValidation = {
-        valid: false,
+        valid: true,
         contactPositionClasses: '',
       };
       this.contact_email = '';
       this.contactEmailValidation = {
-        valid: false,
-        contactEmailClasses: '',
+        valid: true,
+        emailClasses: '',
       };
       this.stored_format = '';
       this.storedFormatValidation = {
-        valid: false,
+        valid: true,
         storedFormatClasses: '',
       };
-      this.available_formats = '';
+      this.available_formats = [];
+      this.availableFormatsValidation = {
+        valid: true,
+        availableFormatsClasses: '',
+      };
       this.access_rights = '';
       this.accessRightsValidation = {
-        valid: false,
+        valid: true,
         accessRightsClasses: '',
       };
       this.use_restrictions = '';
       this.useRestrictionsValidation = {
-        valid: false,
+        valid: true,
         useRestrictionsClasses: '',
       };
       this.security_classification = '';
       this.securityClassificationValidation = {
-        valid: false,
+        valid: true,
         securityClassificationClasses: '',
       };
       this.generalisations = '';
       this.generalisationsValidation = {
-        valid: false,
+        valid: true,
         generalisationsClasses: '',
       };
     },
