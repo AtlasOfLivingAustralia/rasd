@@ -34,7 +34,7 @@ moto = {extras = ["dynamodb"], version = "^4.2.0"}
 
 [tool.poe.tasks]
 serve = "uvicorn lambdas.rasd_fastapi.main:app --reload"
-test = "pytest tests --cov=lambdas"
+test = "pytest tests --cov=lambdas --cov-fail-under=30"
 type = "mypy tests lambdas"
 lint = "ruff check tests lambdas"
 clean = "rm -rf **/.ruff_cache **/.coverage **/.mypy_cache **/.pytest_cache **/__pycache__"
