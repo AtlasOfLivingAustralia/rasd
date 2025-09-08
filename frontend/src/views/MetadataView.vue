@@ -815,22 +815,22 @@ export default {
     },
     northBoundingCoordinateValidate() {
       this.northBoundingCoordinateValidation = northCoordinateValidator(
-        this.metadata.north_bounding_coordinate.toString(),
+        this.metadata.north_bounding_coordinate.toString()
       );
     },
     southBoundingCoordinateValidate() {
       this.southBoundingCoordinateValidation = southCoordinateValidator(
-        this.metadata.south_bounding_coordinate.toString(),
+        this.metadata.south_bounding_coordinate.toString()
       );
     },
     eastBoundingCoordinateValidate() {
       this.eastBoundingCoordinateValidation = eastCoordinateValidator(
-        this.metadata.east_bounding_coordinate.toString(),
+        this.metadata.east_bounding_coordinate.toString()
       );
     },
     westBoundingCoordinateValidate() {
       this.westBoundingCoordinateValidation = westCoordinateValidator(
-        this.metadata.west_bounding_coordinate.toString(),
+        this.metadata.west_bounding_coordinate.toString()
       );
     },
     locationsValidate() {
@@ -919,7 +919,7 @@ export default {
         this.metadata.access_rights,
         this.metadata.use_restrictions,
         this.metadata.security_classification,
-        this.metadata.generalisations,
+        this.metadata.generalisations
       );
       this.loading = false;
       this.editMode = false;
