@@ -30,6 +30,7 @@ pytest-cov = "^4.0.0"
 covdefaults = "^2.2.2"
 boto3 = "^1.26.76"
 boto3-stubs = {extras = ["dynamodb", "cognito-idp", "sesv2"], version = "^1.26.76"}
+moto = {extras = ["dynamodb"], version = "^4.2.0"}
 
 [tool.poe.tasks]
 serve = "uvicorn lambdas.rasd_fastapi.main:app --reload"

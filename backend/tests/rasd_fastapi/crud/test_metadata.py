@@ -9,7 +9,7 @@ from rasd_fastapi.schemas import metadata as metadata_schemas
 from tests import conftest
 
 
-def test_metadata_crud() -> None:
+def test_metadata_crud(mock_dynamodb_tables) -> None:
     """Tests the Meatadata CRUD abstraction."""
     # Create Database Session
     db_session = session.db_session()
