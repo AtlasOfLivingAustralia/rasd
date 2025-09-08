@@ -301,10 +301,7 @@ Resources:
                 ProjectName: !Ref TestBackend
                 EnvironmentVariables: !Sub |
                   [
-                    { "name":"RASD_SECRETS_NAME", "value":"#{ExportConfigNS.SECRET_KEY_NAME}" },
-                    { "name":"AWS_COGNITO_POOL_ID", "value":"#{CloudFormationOutNS.CognitoPoolId}" },
-                    { "name":"AWS_COGNITO_CLIENT_ID", "value":"#{CloudFormationOutNS.CognitoClientId}" },
-                    { "name":"AWS_DYNAMODB_TABLE_ACCESS_REQUESTS", "value":"#{CloudFormationOutNS.DynamoDBTableAccessRequests}" }
+                    { "name":"RASD_SECRETS_NAME", "value":"#{ExportConfigNS.SECRET_KEY_NAME}" }
                   ]
               InputArtifacts:
                 - Name: SourceArtifact

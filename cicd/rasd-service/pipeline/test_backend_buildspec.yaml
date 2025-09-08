@@ -22,10 +22,6 @@ phases:
       - $POETRY_HOME/bin/poetry self add poetry-plugin-export
       - $POETRY_HOME/bin/poetry install
 
-  pre_build:
-    commands:
-      - export AWS_COGNITO_CLIENT_SECRET_KEY=$(aws cognito-idp describe-user-pool-client --user-pool-id $AWS_COGNITO_POOL_ID --client-id $AWS_COGNITO_CLIENT_ID --query "UserPoolClient.ClientSecret" --output text)
-
   build:
     commands:
       - export PATH="$PATH:/root/.local/bin"
