@@ -28,7 +28,7 @@ from rasd_fastapi.services import abn
         ("94 119 508 824", "FAKE NAME", False),  # Registered, wrong entity name
     ]
 )
-def test_verify_abn(value: str, name: str, valid: bool) -> None:
+def test_verify_abn(mock_abn_responses, value: str, name: str, valid: bool) -> None:
     """Tests the ABN field validation.
 
     Args:

@@ -8,7 +8,7 @@ from rasd_fastapi.schemas import organisations as org_schemas
 from tests import conftest
 
 
-def test_organisations_crud() -> None:
+def test_organisations_crud(mock_dynamodb_tables, mock_abn_responses) -> None:
     """Tests the Organisation CRUD abstraction."""
     # Create Database Session
     db_session = session.db_session()
