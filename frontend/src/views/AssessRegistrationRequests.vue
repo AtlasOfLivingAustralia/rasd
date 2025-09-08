@@ -73,6 +73,15 @@
             {{ Array.isArray(row[column.field]) ? row[column.field].join(', ') : row[column.field] }}
           </template>
         </o-table-column>
+        <o-table-column label="Actions" #default="{ row }">
+          <button
+            v-if="row.status === 'Approved' && userStatuses[row.username]"
+            class="button is-small is-warning"
+            @click="resendTempPassword(row.username)"
+            title="Resend temporary password">
+            Resend Temp Password
+          </button>
+        </o-table-column>
       </o-table>
       <h2 v-if="!registrations">Not Available</h2>
     </div>
@@ -80,7 +89,7 @@
 </template>
 
 <script lang="ts">
-import { getOrganisationsAPI, getRegistrationsAPI } from '@/api/api';
+import { getOrganisationsAPI, getRegistrationsAPI, resendTempPasswordAPI, checkUserStatusAPI } from '@/api/api';
 import { defineComponent } from 'vue';
 import type { Registration, CreateOrganisation } from '@/api/api.types';
 import PageHeadingWithDescription from '@/components/PageHeadingWithDescription.vue';
@@ -101,6 +110,7 @@ interface RegistrationRequestsState {
   organisationName: string;
   organisationEmail: string;
   statusFilter: string | undefined;
+  userStatuses: Record<string, boolean>;
 }
 
 export default defineComponent({
@@ -133,6 +143,7 @@ export default defineComponent({
       organisationName: '',
       organisationEmail: '',
       statusFilter: '',
+      userStatuses: {},
     };
   },
   mounted() {
@@ -214,6 +225,17 @@ export default defineComponent({
         });
         this.registrations = registrations;
         this.currentCursor = cursor;
+
+        // Check user statuses for approved registrations
+        this.checkUserStatuses(registrations);
+      }
+    },
+    async checkUserStatuses(registrations: Registration[]): Promise<void> {
+      const approvedUsers = registrations.filter((r) => r.status === 'Approved');
+      for (const user of approvedUsers) {
+        if (user.username) {
+          this.userStatuses[user.username] = await checkUserStatusAPI(user.username);
+        }
       }
     },
     setSelected(selected: Registration | undefined, refresh: boolean) {
@@ -221,6 +243,18 @@ export default defineComponent({
       if (refresh) {
         this.getRegistrations(this.count, this.currentCursor, this.statusFilter);
       }
+    },
+    async resendTempPassword(username: string): Promise<void> {
+      const result = await resendTempPasswordAPI(username);
+
+      // Show notification
+      this.$oruga.notification.open({
+        variant: result[1] ? 'success' : 'danger',
+        message: result[0],
+        position: 'top',
+        closable: true,
+        duration: 4000,
+      });
     },
   },
 });

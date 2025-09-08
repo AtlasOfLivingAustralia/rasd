@@ -158,6 +158,57 @@ async def forgot_password(
     return fastapi.Response(status_code=fastapi.status.HTTP_204_NO_CONTENT)
 
 
+@router.get(r"/user-status/{username}")
+async def check_user_status(
+    *,
+    user: auth.User = fastapi.Depends(security.require_admin),  # noqa: B008
+    username: str,
+) -> dict:
+    """Check if user needs temporary password resend (Admin only).
+
+    Args:
+        user (auth.User): Currently logged in admin user via dependency injection.
+        username (str): Username to check.
+
+    Returns:
+        dict: User status information.
+    """
+    try:
+        needs_temp_password = cognito.check_user_needs_temp_password(username)
+        return {"needsTempPassword": needs_temp_password}
+    except Exception as exc:
+        raise fastapi.HTTPException(
+            status_code=fastapi.status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
+        ) from exc
+
+
+@router.post(r"/password/resend-temp")
+async def resend_temporary_password(
+    *,
+    user: auth.User = fastapi.Depends(security.require_admin),  # noqa: B008
+    username: pydantic.EmailStr = fastapi.Form(),  # noqa: B008
+) -> fastapi.Response:
+    """Resend temporary password endpoint for REST API (Admin only).
+
+    Args:
+        user (auth.User): Currently logged in admin user via dependency injection.
+        username (pydantic.EmailStr): Username to resend temporary password for.
+
+    Returns:
+        fastapi.Response: Authentication response.
+    """
+    try:
+        cognito.resend_temporary_password(username)
+    except Exception as exc:
+        raise fastapi.HTTPException(
+            status_code=fastapi.status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
+        ) from exc
+
+    return fastapi.Response(status_code=fastapi.status.HTTP_204_NO_CONTENT)
+
+
 @router.post(r"/password/forgot/confirm")
 async def forgot_password_confirm(
     *,

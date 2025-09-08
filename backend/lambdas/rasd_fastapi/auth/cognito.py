@@ -43,16 +43,22 @@ def login(
     client = cognito_client()
 
     # Perform Login
-    response = client.admin_initiate_auth(
-        UserPoolId=settings.SETTINGS.AWS_COGNITO_POOL_ID,
-        ClientId=settings.SETTINGS.AWS_COGNITO_CLIENT_ID,
-        AuthFlow="ADMIN_USER_PASSWORD_AUTH",
-        AuthParameters={
-            "USERNAME": username,
-            "PASSWORD": password.get_secret_value(),
-            "SECRET_HASH": secret_hash(username),
-        },
-    )
+    try:
+        response = client.admin_initiate_auth(
+            UserPoolId=settings.SETTINGS.AWS_COGNITO_POOL_ID,
+            ClientId=settings.SETTINGS.AWS_COGNITO_CLIENT_ID,
+            AuthFlow="ADMIN_USER_PASSWORD_AUTH",
+            AuthParameters={
+                "USERNAME": username,
+                "PASSWORD": password.get_secret_value(),
+                "SECRET_HASH": secret_hash(username),
+            },
+        )
+    except Exception as e:
+        print(f"Login exception: {type(e).__name__}: {str(e)}")
+        if "PasswordResetRequiredException" in str(e) or "password reset required" in str(e).lower():
+            raise ValueError("PASSWORD_EXPIRED")
+        raise ValueError(f"Authentication failed: {str(e)}")
 
     # Check for Challenge
     if challenge := response.get("ChallengeName"):
@@ -230,6 +236,62 @@ def forgot_password(
         ClientId=settings.SETTINGS.AWS_COGNITO_CLIENT_ID,
         Username=username,
         SecretHash=secret_hash(username),
+    )
+
+
+def check_user_needs_temp_password(
+    username: pydantic.EmailStr,
+) -> bool:
+    """Checks if user needs temporary password resend.
+
+    Args:
+        username (pydantic.EmailStr): Username to check.
+
+    Returns:
+        bool: True if user needs temp password resend, False otherwise.
+    """
+    # Get Client
+    client = cognito_client()
+
+    try:
+        # Get user details
+        response = client.admin_get_user(
+            UserPoolId=settings.SETTINGS.AWS_COGNITO_POOL_ID,
+            Username=username,
+        )
+        
+        # Check if user status indicates they might need temp password reset
+        user_status = response.get("UserStatus")
+        # Show button for users who are confirmed but might have login issues
+        return user_status in ["FORCE_CHANGE_PASSWORD", "RESET_REQUIRED"]
+        
+    except Exception:
+        # If we can't get user info, assume they don't need resend
+        return False
+
+
+def resend_temporary_password(
+    username: pydantic.EmailStr,
+) -> None:
+    """Resends temporary password for a user whose temp password has expired.
+
+    Args:
+        username (pydantic.EmailStr): Username to resend temporary password for.
+    """
+    # Get Client
+    client = cognito_client()
+
+    # First reset the user to force password change state
+    client.admin_reset_user_password(
+        UserPoolId=settings.SETTINGS.AWS_COGNITO_POOL_ID,
+        Username=username,
+    )
+    
+    # Then resend the temporary password email
+    client.admin_create_user(
+        UserPoolId=settings.SETTINGS.AWS_COGNITO_POOL_ID,
+        Username=username,
+        MessageAction="RESEND",
     )
 
 

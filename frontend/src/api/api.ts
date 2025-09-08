@@ -84,8 +84,17 @@ export const loginAPI = async function login(username: string, password: string)
         }
       });
     })
-    .catch(function () {
-      message = ['Invalid email address or password', false];
+    .catch(function (error) {
+      console.log('Login error:', error);
+      console.log('Error response:', error.response);
+      console.log('Error response data:', error.response?.data);
+      const detail = error.response?.data?.detail || 'Invalid email address or password';
+      console.log('Detail:', detail);
+      if (detail.includes('PasswordResetRequiredException') || detail.includes('Password reset required')) {
+        message = ['PASSWORD_EXPIRED', false];
+      } else {
+        message = [detail, false];
+      }
     });
   // @ts-ignore
   return message;
@@ -178,6 +187,40 @@ export const forgotPasswordAPI = async function forgotPassword(username: string)
     })
     .catch((error) => {
       message = [error.response.data.detail, false];
+    });
+  // @ts-ignore
+  return message;
+};
+
+export const checkUserStatusAPI = async function checkUserStatus(username: string): Promise<boolean> {
+  try {
+    const response = await axios.get(`/auth/user-status/${username}`);
+    return response.data.needsTempPassword || false;
+  } catch (error) {
+    console.error('Error checking user status:', error);
+    return false;
+  }
+};
+
+export const resendTempPasswordAPI = async function resendTempPassword(username: string) {
+  let message: (string | boolean)[];
+  await axios
+    .post(
+      '/auth/password/resend-temp',
+      {
+        username: username,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      }
+    )
+    .then(() => {
+      message = [`Temporary password has been resent to ${username}`, true];
+    })
+    .catch((error) => {
+      message = [error.response?.data?.detail || 'Failed to resend temporary password', false];
     });
   // @ts-ignore
   return message;

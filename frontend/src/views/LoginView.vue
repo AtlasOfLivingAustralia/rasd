@@ -54,9 +54,21 @@ export default {
       const { oruga } = useProgrammatic();
       this.isLoading = true;
       this.notification = await loginAPI(this.username, this.password);
+      console.log('Login response:', this.notification);
       this.isLoading = false;
       if (this.notification[1] === true) {
         this.$router.push(this.from || '/tools');
+      } else if (this.notification[0] === 'PASSWORD_EXPIRED') {
+        oruga.notification.open({
+          variant: 'warning',
+          message: 'Your password has expired. Redirecting to password reset...',
+          position: 'top',
+          closable: false,
+          duration: 2000,
+        });
+        setTimeout(() => {
+          this.$router.push('/forgot-password');
+        }, 2000);
       } else {
         oruga.notification.open({
           variant: 'danger',

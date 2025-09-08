@@ -7,7 +7,8 @@ import router from '@/router';
 // The main use case of this interceptor is to catch auth token (idToken) that has expired (401)
 function catchAuthError(error: AxiosError): Promise<AxiosError> {
   const statusCode = error.response?.status;
-  if (statusCode === 401 || statusCode === 403) {
+  const url = error.config?.url;
+  if ((statusCode === 401 || statusCode === 403) && !url?.includes('/auth/login')) {
     const user = useUserDataStore();
     let errorMessage: string;
     if (user.isLoggedIn) {
