@@ -80,8 +80,8 @@ class RASDMetadataSummary(base.BaseSchema):
     id: uuid.UUID  # noqa: A003
     title: str
     title_lower: Optional[str]
-    abstract: Optional[str]
-    abstract_lower: Optional[str]
+    abstract: str = pydantic.Field(max_length=2000)
+    abstract_lower: Optional[str] = pydantic.Field(max_length=2000)
     keywords: list[metadata_vocabs.keywords.Keyword]
     locations: list[metadata_vocabs.locations.Location]
     organisation_id: uuid.UUID
