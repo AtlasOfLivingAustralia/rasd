@@ -194,6 +194,8 @@ Resources:
                 FilePaths:
                   Includes:
                     - !Sub cicd/${pProductComponent}/**
+                    - backend/**
+                    - frontend/**
             SourceActionName: CheckoutSrc
       Variables:
         - Name: SRC_BRANCH
