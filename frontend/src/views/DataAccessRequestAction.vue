@@ -139,7 +139,8 @@
           </header>
           <div
             class="card-content has-background-warning-light"
-            :class="{ active: openCollapsibles[dataAccessRequest.id] }">
+            :class="{ active: openCollapsibles[dataAccessRequest.id] }"
+            :data-collapsible-content="dataAccessRequest.id">
             <h4 class="is-size-4 has-text-weight-bold py-2 pl-5 has-text-black">
               Status of datasets included in request ({{ getFilteredDatasetRequests(dataAccessRequest).length }})
             </h4>
@@ -311,7 +312,8 @@
         </header>
         <div
           class="card-content has-background-warning-light"
-          :class="{ active: openCollapsibles[dataAccessRequest.id] }">
+          :class="{ active: openCollapsibles[dataAccessRequest.id] }"
+          :data-collapsible-content="dataAccessRequest.id">
           <h4 class="is-size-4 has-text-weight-bold py-2 pl-6 ml-5 has-text-black">
             Status of datasets included in request ({{ getFilteredDatasetRequests(dataAccessRequest).length }})
           </h4>
@@ -448,6 +450,7 @@
 
   <DataAccessRequest
     v-if="openAccessRequest"
+    ref="darForm"
     :read-only-fields="openAccessRequest"
     :access-values="[openAccessRequest.data.access]"
     :industryClassification-values="[openAccessRequest.project.industry]"
@@ -549,6 +552,21 @@ export default defineComponent({
   methods: {
     toggleCollapsible(key: string) {
       this.openCollapsibles[key] = !this.openCollapsibles[key];
+
+      if (this.openCollapsibles[key]) {
+        this.$nextTick(() => {
+          const collapsibleContent = document.querySelector(`[data-collapsible-content="${key}"]`);
+          if (collapsibleContent) {
+            collapsibleContent.scrollIntoView({
+              behavior: 'smooth',
+              block: 'center',
+            });
+            (collapsibleContent as HTMLElement).setAttribute('tabindex', '-1');
+            (collapsibleContent as HTMLElement).focus();
+            (collapsibleContent as HTMLElement).removeAttribute('tabindex');
+          }
+        });
+      }
     },
     async getAccessRequests(cursor?: string | undefined) {
       const response = await getAccessRequestsAPI(this.role, this.limit, cursor);
@@ -577,6 +595,21 @@ export default defineComponent({
     setOpenDatasetRequest(accessRequestId: string | undefined, datasetRequestId: string | undefined) {
       this.openAccessRequestId = accessRequestId;
       this.openDatasetRequestId = datasetRequestId;
+
+      if (accessRequestId && datasetRequestId) {
+        this.$nextTick(() => {
+          const darForm = this.$refs.darForm as any;
+          if (darForm && darForm.$el) {
+            darForm.$el.scrollIntoView({
+              behavior: 'smooth',
+              block: 'center',
+            });
+            darForm.$el.setAttribute('tabindex', '-1');
+            darForm.$el.focus();
+            darForm.$el.removeAttribute('tabindex');
+          }
+        });
+      }
     },
     getFilteredDatasetRequests(dataAccessRequest: DataAccessRequestRead) {
       return this.openDatasetRequest ? [this.openDatasetRequest] : dataAccessRequest.datasetRequests;
