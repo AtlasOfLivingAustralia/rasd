@@ -509,6 +509,15 @@ export const editMetadataAPI = async function editMetadata(
   return message;
 };
 
+export const deleteMetadataAPI = async function deleteMetadata(id: string): Promise<[string, boolean]> {
+  try {
+    await axios.delete('/metadata/' + id);
+    return ['Your Metadata has been deleted!', true];
+  } catch {
+    return ['There has been a problem deleting your metadata.', false];
+  }
+};
+
 export const getAccessRightsAPI = async function getAccessRights() {
   let accessRights: any[] = [];
   await axios
