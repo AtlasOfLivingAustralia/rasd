@@ -6,9 +6,11 @@
         <p class="has-text-justified has-text-primary pb-3">
           For bibliographic purposes this publication may be cited as: National Framework for the Sharing of Restricted
           Access Species Data in Australia 2023, Atlas of Living Australia, Publication Series No. 6, Canberra,
-          Australia. Supplements of this publications are regularly updated and may be cited as: National Framework for
-          the Sharing of Restricted Access Species Data in Australia 2023, Supplement Recognising Indigenous Data
-          Sovereignty 1/12/2023, Atlas of Living Australia, CSIRO, Canberra.
+          Australia. https://doi.org/10.54102/ala.94894.
+          <br />
+          Supplements of this publications are regularly updated and may be cited as: National Framework for the Sharing
+          of Restricted Access Species Data in Australia 2023, Supplement Recognising Indigenous Data Sovereignty
+          1/12/2023, Atlas of Living Australia, CSIRO, Canberra. https://doi.org/10.54102/ala.94894.
         </p>
         <div class="py-2 mt-6 pt-6 has-text-centered">
           <a href="https://doi.org/10.54102/ala.94894">DOI: https://doi.org/10.54102/ala.94894</a>
