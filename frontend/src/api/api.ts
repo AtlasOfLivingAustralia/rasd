@@ -354,8 +354,8 @@ export const createMetadataAPI = async function createMetadata(
         },
       }
     )
-    .then(() => {
-      message = ['Your Metadata has been created!', true];
+    .then((response) => {
+      message = ['Your Metadata has been created!', true, response.data.id];
     })
     .catch(() => {
       message = ['There has been a problem creating your metadata.', false];
