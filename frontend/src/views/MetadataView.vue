@@ -936,9 +936,6 @@ export default {
           position: 'top',
           closable: true,
         });
-        if (this.notification[1]) {
-          return this.clearFields();
-        }
       }
 
       setTimeout(() => {
