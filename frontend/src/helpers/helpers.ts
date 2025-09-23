@@ -206,17 +206,19 @@ export const collectionValidator = (collection: []): object => {
 };
 
 export const dataSourceValidator = (dataSourceDOI: string, dataSourceURL: string): object => {
-  const dataSourceDOIValid = dataSourceDOI.match(doiRegex);
-  const dataSourceURLValid = isURL(dataSourceURL, {
-    protocols: ['http', 'https', 'ftp'],
-    require_tld: true,
-    require_protocol: true,
-  });
+  const dataSourceDOIValid = dataSourceDOI ? dataSourceDOI.match(doiRegex) : false;
+  const dataSourceURLValid = dataSourceURL
+    ? isURL(dataSourceURL, {
+        protocols: ['http', 'https', 'ftp'],
+        require_tld: true,
+        require_protocol: true,
+      })
+    : false;
 
-  if (dataSourceDOIValid && dataSourceURL === '') {
+  if (dataSourceDOIValid && (!dataSourceURL || dataSourceURL === '')) {
     return { valid: true, dataSourceDOIClasses: successClasses, dataSourceURLClasses: warningClasses };
   }
-  if (dataSourceDOI === '' && dataSourceURLValid) {
+  if ((!dataSourceDOI || dataSourceDOI === '') && dataSourceURLValid) {
     return { valid: true, dataSourceDOIClasses: warningClasses, dataSourceURLClasses: successClasses };
   }
   if (dataSourceDOIValid && dataSourceURLValid) {

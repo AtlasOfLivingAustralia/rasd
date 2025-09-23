@@ -59,13 +59,7 @@
           :message="this.keywordValidation.keywordClasses === 'is-danger' ? 'Keywords must not be empty' : ''"
           >* Keywords:</o-field
         >
-        <o-dropdown
-          v-if="keywordsOptions"
-          :disabled="!editMode"
-          v-model="metadata.keywords"
-          @change="this.keywordValidate"
-          multiple
-          role="list">
+        <o-dropdown v-if="keywordsOptions" :disabled="!editMode" v-model="metadata.keywords" multiple role="list">
           <template #trigger>
             <o-button variant="primary" type="button" :class="this.keywordValidation.keywordClasses">
               <span v-if="metadata.keywords"
@@ -165,12 +159,7 @@
           :message="this.locationsValidation.locationsClasses === 'is-danger' ? 'Location must not be empty' : ''"
           >* Locations:</o-field
         >
-        <o-dropdown
-          v-model="metadata.locations"
-          role="list"
-          multiple
-          @change="this.locationsValidate"
-          :disabled="!editMode">
+        <o-dropdown v-model="metadata.locations" role="list" multiple :disabled="!editMode">
           <template #trigger>
             <o-button variant="primary" :class="this.locationsValidation.locationsClasses">
               {{ locations_text }}
@@ -207,12 +196,7 @@
           "
           >* Collection Methods:</o-field
         >
-        <o-dropdown
-          v-model="metadata.collection_methods"
-          @change="this.collectionMethodValidate"
-          multiple
-          role="list"
-          :disabled="!editMode">
+        <o-dropdown v-model="metadata.collection_methods" multiple role="list" :disabled="!editMode">
           <template #trigger>
             <o-button
               variant="primary"
@@ -346,7 +330,7 @@
           "
           >* Stored Format:</o-field
         >
-        <o-dropdown v-model="metadata.stored_format" @change="this.storedFormatValidate" :disabled="!editMode">
+        <o-dropdown v-model="metadata.stored_format" :disabled="!editMode">
           <template #trigger>
             <o-button variant="primary" type="button" :class="this.storedFormatValidation.storedFormatClasses">
               <span>{{ metadata.stored_format ? metadata.stored_format : 'Select a stored format' }}</span>
@@ -368,12 +352,7 @@
           "
           >* Available Formats:</o-field
         >
-        <o-dropdown
-          v-model="metadata.available_formats"
-          multiple
-          role="list"
-          :disabled="!editMode"
-          @change="this.availableFormatsValidate">
+        <o-dropdown v-model="metadata.available_formats" multiple role="list" :disabled="!editMode">
           <template #trigger>
             <o-button variant="primary" type="button" :class="this.availableFormatsValidation.availableFormatsClasses">
               <span>
@@ -395,7 +374,7 @@
           "
           >* Access Rights:</o-field
         >
-        <o-dropdown v-model="metadata.access_rights" :disabled="!editMode" @change="this.accessRightsValidate">
+        <o-dropdown v-model="metadata.access_rights" :disabled="!editMode">
           <template #trigger>
             <o-button variant="primary" :class="this.accessRightsValidation.accessRightsClasses">
               <span>{{ metadata.access_rights ? metadata.access_rights : 'Please select an access right' }}</span>
@@ -436,10 +415,7 @@
           "
           >* Security Classification:</o-field
         >
-        <o-dropdown
-          v-model="metadata.security_classification"
-          :disabled="!editMode"
-          @change="this.securityClassificationValidate">
+        <o-dropdown v-model="metadata.security_classification" :disabled="!editMode">
           <template #trigger>
             <o-button variant="primary" :class="this.securityClassificationValidation.securityClassificationClasses">
               <span>{{
@@ -544,6 +520,7 @@ export default {
     canSubmitForm() {
       return !(
         this.titleValidation.valid &&
+        this.abstractValidation.valid &&
         this.keywordValidation.valid &&
         this.temporalCoverageFromValidation.valid &&
         this.temporalCoverageToValidation.valid &&
@@ -560,6 +537,7 @@ export default {
         this.contactPositionValidation.valid &&
         this.contactEmailValidation.valid &&
         this.storedFormatValidation.valid &&
+        this.availableFormatsValidation.valid &&
         this.accessRightsValidation.valid &&
         this.useRestrictionsValidation.valid &&
         this.securityClassificationValidation.valid &&
@@ -719,76 +697,107 @@ export default {
           ? null
           : new Date(this.metadata.embargo_release_date);
     },
-    titleValidation() {
-      this.titleValidate();
+    'metadata.title'() {
+      this.editMode && this.titleValidate();
     },
-    keywordValidation() {
-      this.keywordValidate();
+    'metadata.keywords'() {
+      this.editMode && this.keywordValidate();
     },
-    temporalCoverageFromValidation() {
-      this.temporalCoverageFromValidate();
+    'metadata.temporal_coverage_from'() {
+      this.editMode && this.temporalCoverageFromValidate();
     },
-    temporalCoverageToValidation() {
-      this.temporalCoverageToValidate();
+    'metadata.temporal_coverage_to'() {
+      this.editMode && this.temporalCoverageToValidate();
     },
-    northBoundingCoordinateValidation() {
-      this.northBoundingCoordinateValidate();
+    'metadata.north_bounding_coordinate'() {
+      this.editMode && this.northBoundingCoordinateValidate();
     },
-    southBoundingCoordinateValidation() {
-      this.southBoundingCoordinateValidate();
+    'metadata.south_bounding_coordinate'() {
+      this.editMode && this.southBoundingCoordinateValidate();
     },
-    eastBoundingCoordinateValidation() {
-      this.eastBoundingCoordinateValidate();
+    'metadata.east_bounding_coordinate'() {
+      this.editMode && this.eastBoundingCoordinateValidate();
     },
-    westBoundingCoordinateValidation() {
-      this.westBoundingCoordinateValidate();
+    'metadata.west_bounding_coordinate'() {
+      this.editMode && this.westBoundingCoordinateValidate();
     },
-    locationsValidation() {
-      this.locationsValidate();
+    'metadata.locations'() {
+      this.editMode && this.locationsValidate();
     },
-    taxaCoveredValidation() {
-      this.taxaCoveredValidate();
+    'metadata.taxa_covered'() {
+      this.editMode && this.taxaCoveredValidate();
     },
-    collectionMethodsValidation() {
-      this.collectionMethodValidate();
+    'metadata.collection_methods'() {
+      this.editMode && this.collectionMethodValidate();
     },
-    dataSourceValidation() {
-      this.dataSourceValidate();
+    'metadata.data_source_doi'() {
+      this.editMode && this.dataSourceValidate();
     },
-    custodianValidation() {
-      this.custodianValidate();
+    'metadata.data_source_url'() {
+      this.editMode && this.dataSourceValidate();
     },
-    contactOrganisationValidation() {
-      this.contactOrganisationValidate();
+    'metadata.custodian'() {
+      this.editMode && this.custodianValidate();
     },
-    contactPositionValidation() {
-      this.contactPositionValidate();
+    'metadata.contact_organisation'() {
+      this.editMode && this.contactOrganisationValidate();
     },
-    contactEmailValidation() {
-      this.contactEmailValidate();
+    'metadata.contact_position'() {
+      this.editMode && this.contactPositionValidate();
     },
-    storedFormatValidation() {
-      this.storedFormatValidate();
+    'metadata.contact_email'() {
+      this.editMode && this.contactEmailValidate();
     },
-    availableFormatsValidation() {
-      this.availableFormatsValidate();
+    'metadata.stored_format'() {
+      this.editMode && this.storedFormatValidate();
     },
-    accessRightsValidation() {
-      this.accessRightsValidate();
+    'metadata.available_formats'() {
+      this.editMode && this.availableFormatsValidate();
     },
-    useRestrictionsValidation() {
-      this.useRestrictionsValidate();
+    'metadata.access_rights'() {
+      this.editMode && this.accessRightsValidate();
     },
-    securityClassificationValidation() {
-      this.securityClassificationValidate();
+    'metadata.use_restrictions'() {
+      this.editMode && this.useRestrictionsValidate();
     },
-    generalisationsValidation() {
-      this.generalisationsValidate();
+    'metadata.security_classification'() {
+      this.editMode && this.securityClassificationValidate();
+    },
+    'metadata.generalisations'() {
+      this.editMode && this.generalisationsValidate();
+    },
+    'metadata.abstract'() {
+      this.editMode && this.abstractValidate();
     },
   },
   methods: {
     setEditMode() {
       this.editMode = true;
+      this.$nextTick(() => {
+        this.titleValidate();
+        this.abstractValidate();
+        this.keywordValidate();
+        this.temporalCoverageFromValidate();
+        this.temporalCoverageToValidate();
+        this.northBoundingCoordinateValidate();
+        this.southBoundingCoordinateValidate();
+        this.eastBoundingCoordinateValidate();
+        this.westBoundingCoordinateValidate();
+        this.locationsValidate();
+        this.taxaCoveredValidate();
+        this.collectionMethodValidate();
+        this.dataSourceValidate();
+        this.custodianValidate();
+        this.contactOrganisationValidate();
+        this.contactPositionValidate();
+        this.contactEmailValidate();
+        this.storedFormatValidate();
+        this.availableFormatsValidate();
+        this.accessRightsValidate();
+        this.useRestrictionsValidate();
+        this.securityClassificationValidate();
+        this.generalisationsValidate();
+      });
     },
     async getMetadata() {
       this.loading = true;
