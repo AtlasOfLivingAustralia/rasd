@@ -555,18 +555,45 @@ export default defineComponent({
 
       if (this.openCollapsibles[key]) {
         this.$nextTick(() => {
-          const collapsibleContent = document.querySelector(`[data-collapsible-content="${key}"]`);
-          if (collapsibleContent) {
-            collapsibleContent.scrollIntoView({
-              behavior: 'smooth',
-              block: 'center',
-            });
-            (collapsibleContent as HTMLElement).setAttribute('tabindex', '-1');
-            (collapsibleContent as HTMLElement).focus();
-            (collapsibleContent as HTMLElement).removeAttribute('tabindex');
-          }
+          this.scrollToExpandedCard(key);
         });
       }
+    },
+    scrollToExpandedCard(key: string): void {
+      const collapsibleContent = document.querySelector(`[data-collapsible-content="${key}"]`);
+      const darCard = collapsibleContent?.closest('.card') as HTMLElement;
+      if (!collapsibleContent || !darCard) {
+        console.warn(`Could not find collapsible content or card for key: ${key}`);
+        return;
+      }
+      let scrollAttempts = 0;
+      const performScroll = (): void => {
+        if (scrollAttempts >= 3) {
+          console.warn(`Max scroll attempts reached for card: ${key}`);
+          return;
+        }
+        scrollAttempts++;
+        darCard.getBoundingClientRect();
+        darCard.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        });
+        this.setElementFocus(darCard);
+        setTimeout(() => {
+          const cardRect = darCard.getBoundingClientRect();
+          const isScrolledToTop = cardRect.top >= -10 && cardRect.top <= 50;
+
+          if (!isScrolledToTop) {
+            performScroll();
+          }
+        }, 10);
+      };
+      setTimeout(performScroll, 10);
+    },
+    setElementFocus(element: HTMLElement): void {
+      element.setAttribute('tabindex', '-1');
+      element.focus();
+      element.removeAttribute('tabindex');
     },
     async getAccessRequests(cursor?: string | undefined) {
       const response = await getAccessRequestsAPI(this.role, this.limit, cursor);
@@ -779,5 +806,9 @@ export default defineComponent({
 .parent-status {
   padding-right: 2rem;
   text-align: right;
+}
+
+.card {
+  scroll-margin-top: 60px;
 }
 </style>
