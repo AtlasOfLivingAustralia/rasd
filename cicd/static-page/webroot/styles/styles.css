@@ -27,7 +27,7 @@ ul {
 .hub-header__container {
     
     background-color: #0c6c4f;
-    padding-top: 120px;
+    padding-top: 50px;
     padding-bottom: 20px;
     padding-right: 100px;
 }
@@ -219,7 +219,7 @@ ul {
 
 @media (max-width: 991.98px) {
     .rasd-navbar .navbar-nav {
-        text-align: left;
+        text-align: right;
         margin-top: 10px;
     }
 
