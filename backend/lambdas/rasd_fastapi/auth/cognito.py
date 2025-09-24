@@ -8,7 +8,6 @@ import hmac
 import secrets
 import string
 import uuid
-import os
 import json
 
 # Third-Party
@@ -285,15 +284,14 @@ def get_cognito_client_secret() -> str:
         str: The Cognito client secret.
     """
     # First try to get it from the secrets manager
-    secret_name = os.environ.get("RASD_SECRETS_NAME")
+    secret_name=settings.SETTINGS.RASD_SECRETS_NAME
     try:
-        sm_client = boto3.client("secretsmanager")
-        response = sm_client.get_secret_value(SecretId=secret_name)
-        secrets_data = json.loads(response["SecretString"])
+        sm_client=boto3.client("secretsmanager")
+        response=sm_client.get_secret_value(SecretId=secret_name)
+        secrets_data=json.loads(response["SecretString"])
         
         # Look for the secret in the stored secrets
-        if "AWS_COGNITO_CLIENT_SECRET_KEY" in secrets_data:
-            return secrets_data["AWS_COGNITO_CLIENT_SECRET_KEY"]
+        return secrets_data["AWS_COGNITO_CLIENT_SECRET_KEY"]
     except Exception as e:
         raise ValueError(f"Could not retrieve Cognito client secret: {e}")
 
