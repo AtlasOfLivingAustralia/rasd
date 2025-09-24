@@ -72,10 +72,12 @@ Resources:
     Properties:
       Name: !Ref pSecretKeyName
       Description: Secrets for RASD services
-      SecretString: !Sub |
-        {
-          "AWS_COGNITO_CLIENT_SECRET_KEY": "${CognitoAppClientRasdbackend.ClientSecret}"
-        }
+      SecretString: !Sub 
+        - |
+            {
+              "AWS_COGNITO_CLIENT_SECRET_KEY": "${ClientSecret}"
+            }
+        - ClientSecret: !GetAtt CognitoAppClientRasdbackend.ClientSecret
 
   DynamoDBTableDataAccessRequests:
     Type: AWS::DynamoDB::Table
