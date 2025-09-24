@@ -25,7 +25,6 @@ os.environ.update({
     "AWS_DEFAULT_REGION": "ap-southeast-2",
     "AWS_COGNITO_POOL_ID": "test-pool",
     "AWS_COGNITO_CLIENT_ID": "test-client",
-    "AWS_COGNITO_CLIENT_SECRET_KEY": "test-secret",
     "ABN_LOOKUP_GUID": "test-guid-123"
 })
 
@@ -34,6 +33,10 @@ with patch("boto3.client") as mock_client:
     mock_sm = Mock()
     mock_sm.get_secret_value.side_effect = Exception("No secrets in test")
     mock_client.return_value = mock_sm
+
+# Mock the dynamic cognito client secret function for tests
+with patch("rasd_fastapi.auth.cognito.get_cognito_client_secret") as mock_get_secret:
+    mock_get_secret.return_value = "test-secret"
 
 
 # Shortcuts

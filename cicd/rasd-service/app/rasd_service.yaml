@@ -72,6 +72,10 @@ Resources:
     Properties:
       Name: !Ref pSecretKeyName
       Description: Secrets for RASD services
+      SecretString: !Sub |
+        {
+          "AWS_COGNITO_CLIENT_SECRET_KEY": "${CognitoAppClientRasdbackend.ClientSecret}"
+        }
 
   DynamoDBTableDataAccessRequests:
     Type: AWS::DynamoDB::Table
@@ -248,6 +252,7 @@ Resources:
                   - cognito-idp:ConfirmSignUp
                   - cognito-idp:CreateGroup
                   - cognito-idp:DeleteGroup
+                  - cognito-idp:DescribeUserPoolClient
                 Effect: Allow
               - Resource: '*'
                 Action:
@@ -440,7 +445,6 @@ Resources:
           RASD_SECRETS_NAME: !Ref RasdSecrets
           AWS_COGNITO_CLIENT_ID: !Ref CognitoAppClientRasdbackend
           AWS_COGNITO_POOL_ID: !Ref CognitoPool
-          AWS_COGNITO_CLIENT_SECRET_KEY: !GetAtt CognitoAppClientRasdbackend.ClientSecret
           AWS_DYNAMODB_TABLE_ACCESS_REQUESTS: !Ref DynamoDBTableDataAccessRequests
           AWS_DYNAMODB_TABLE_METADATA: !Ref DynamoDBTableMetadata
           AWS_DYNAMODB_TABLE_ORGANISATIONS: !Ref DynamoDBTableOrganisations
