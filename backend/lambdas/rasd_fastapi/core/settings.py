@@ -49,7 +49,6 @@ class Settings(pydantic.BaseSettings):
     # AWS Cognito Settings
     AWS_COGNITO_POOL_ID: str
     AWS_COGNITO_CLIENT_ID: str
-    AWS_COGNITO_CLIENT_SECRET_KEY: str
 
     # AWS SES Settings
     EMAIL_FROM_NAME: str = "RASD"

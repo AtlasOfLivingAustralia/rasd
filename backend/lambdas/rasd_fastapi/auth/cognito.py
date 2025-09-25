@@ -8,6 +8,7 @@ import hmac
 import secrets
 import string
 import uuid
+import json
 
 # Third-Party
 import boto3
@@ -274,6 +275,28 @@ def cognito_client() -> "CognitoIdentityProviderClient":
     )
 
 
+def get_cognito_client_secret() -> str:
+    """Gets the Cognito client secret dynamically from AWS Secrets Manager.
+    
+    This function fetches the secret at runtime to avoid storing it in environment variables.
+    
+    Returns:
+        str: The Cognito client secret.
+    """
+
+    secret_name=settings.SETTINGS.RASD_SECRETS_NAME
+
+    try:
+        sm_client=boto3.client("secretsmanager")
+        response=sm_client.get_secret_value(SecretId=secret_name)
+        secrets_data=json.loads(response["SecretString"])
+        
+        # Look for the secret in the stored secrets
+        return secrets_data["AWS_COGNITO_CLIENT_SECRET_KEY"]
+    except Exception as e:
+        raise ValueError(f"Could not retrieve Cognito client secret: {e}")
+
+
 def temporary_password() -> pydantic.SecretStr:
     """Generates a secure temporary password.
 
@@ -313,10 +336,13 @@ def secret_hash(username: pydantic.EmailStr) -> str:
     Returns:
         str: Generated secret hash.
     """
+    # Get the client secret dynamically
+    client_secret = get_cognito_client_secret()
+    
     # Calculate and Return Secret Hash
     return base64.b64encode(
          s=hmac.new(
-            key=settings.SETTINGS.AWS_COGNITO_CLIENT_SECRET_KEY.encode(),
+            key=client_secret.encode(),
             msg=(username + settings.SETTINGS.AWS_COGNITO_CLIENT_ID).encode(),
             digestmod=hashlib.sha256,
         ).digest()
