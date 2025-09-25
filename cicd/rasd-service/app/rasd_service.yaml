@@ -254,7 +254,6 @@ Resources:
                   - cognito-idp:ConfirmSignUp
                   - cognito-idp:CreateGroup
                   - cognito-idp:DeleteGroup
-                  - cognito-idp:DescribeUserPoolClient
                 Effect: Allow
               - Resource: '*'
                 Action:

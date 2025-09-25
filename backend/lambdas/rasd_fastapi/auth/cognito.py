@@ -283,8 +283,9 @@ def get_cognito_client_secret() -> str:
     Returns:
         str: The Cognito client secret.
     """
-    # First try to get it from the secrets manager
+
     secret_name=settings.SETTINGS.RASD_SECRETS_NAME
+
     try:
         sm_client=boto3.client("secretsmanager")
         response=sm_client.get_secret_value(SecretId=secret_name)
