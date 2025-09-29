@@ -590,6 +590,30 @@ export default defineComponent({
       };
       setTimeout(performScroll, 10);
     },
+    scrollToCollapsibleContent(key: string): void {
+      setTimeout(() => {
+        const collapsibleContent = document.querySelector(`[data-collapsible-content="${key}"]`) as HTMLElement;
+        if (!collapsibleContent) {
+          console.warn(`Could not find collapsible content for key: ${key}`);
+          return;
+        }
+
+        const navbar = document.querySelector('.navbar.is-fixed-top') as HTMLElement;
+        const navbarHeight = navbar ? navbar.offsetHeight : 60;
+
+        const contentRect = collapsibleContent.getBoundingClientRect();
+        const offsetFromTop = contentRect.top + window.scrollY - navbarHeight;
+
+        window.scrollTo({
+          top: offsetFromTop,
+          behavior: 'smooth',
+        });
+
+        setTimeout(() => {
+          this.setElementFocus(collapsibleContent);
+        }, 20);
+      }, 10);
+    },
     setElementFocus(element: HTMLElement): void {
       element.setAttribute('tabindex', '-1');
       element.focus();
@@ -624,17 +648,9 @@ export default defineComponent({
       this.openDatasetRequestId = datasetRequestId;
 
       if (accessRequestId && datasetRequestId) {
+        this.openCollapsibles[accessRequestId] = true;
         this.$nextTick(() => {
-          const darForm = this.$refs.darForm as any;
-          if (darForm && darForm.$el) {
-            darForm.$el.scrollIntoView({
-              behavior: 'smooth',
-              block: 'center',
-            });
-            darForm.$el.setAttribute('tabindex', '-1');
-            darForm.$el.focus();
-            darForm.$el.removeAttribute('tabindex');
-          }
+          this.scrollToCollapsibleContent(accessRequestId);
         });
       }
     },
