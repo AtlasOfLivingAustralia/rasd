@@ -591,7 +591,7 @@ export default defineComponent({
       setTimeout(performScroll, 10);
     },
     scrollToCollapsibleContent(key: string): void {
-      setTimeout(() => {
+      this.$nextTick(() => {
         const collapsibleContent = document.querySelector(`[data-collapsible-content="${key}"]`) as HTMLElement;
         if (!collapsibleContent) {
           console.warn(`Could not find collapsible content for key: ${key}`);
@@ -601,18 +601,36 @@ export default defineComponent({
         const navbar = document.querySelector('.navbar.is-fixed-top') as HTMLElement;
         const navbarHeight = navbar ? navbar.offsetHeight : 60;
 
-        const contentRect = collapsibleContent.getBoundingClientRect();
-        const offsetFromTop = contentRect.top + window.scrollY - navbarHeight;
+        let scrollAttempts = 0;
+        const performScroll = (): void => {
+          if (scrollAttempts >= 3) {
+            console.warn(`Max scroll attempts reached for collapsible content`);
+            return;
+          }
+          scrollAttempts++;
 
-        window.scrollTo({
-          top: offsetFromTop,
-          behavior: 'smooth',
-        });
+          const contentRect = collapsibleContent.getBoundingClientRect();
+          const offsetFromTop = contentRect.top + window.scrollY - navbarHeight;
 
-        setTimeout(() => {
-          this.setElementFocus(collapsibleContent);
-        }, 20);
-      }, 10);
+          window.scrollTo({
+            top: offsetFromTop,
+            behavior: 'smooth',
+          });
+
+          setTimeout(() => {
+            const newContentRect = collapsibleContent.getBoundingClientRect();
+            const isScrolledToPosition =
+              newContentRect.top >= navbarHeight - 10 && newContentRect.top <= navbarHeight + 50;
+
+            if (!isScrolledToPosition) {
+              performScroll();
+            } else {
+              this.setElementFocus(collapsibleContent);
+            }
+          }, 300);
+        };
+        setTimeout(performScroll, 10);
+      });
     },
     setElementFocus(element: HTMLElement): void {
       element.setAttribute('tabindex', '-1');
