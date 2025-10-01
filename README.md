@@ -55,5 +55,10 @@ You might encounter error in building frontend phase since DNS might not be reso
 ## Rollback
 To rollback to any previous revision go to CodePipeline and after selecting "Release Change" choose the commit to release. [Detailed instructions here](https://docs.aws.amazon.com/codepipeline/latest/userguide/pipelines-trigger-source-overrides.html#pipelines-trigger-source-overrides-console)
 
+## DeepWiki Reference
+This repository is also available for rich, cross-repository browsing on DeepWiki:
 
+https://deepwiki.com/AtlasOfLivingAustralia/rasd
+
+DeepWiki provides an automatically generated, interlinked view of the codebase. Use it for faster exploration of modules, cross-references, and architectural context. If something appears out of date, refresh will occur automatically on new commits.
 
