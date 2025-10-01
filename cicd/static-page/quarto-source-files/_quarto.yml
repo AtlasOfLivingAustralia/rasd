@@ -5,7 +5,7 @@ book:
   title: "RASD Framework"
   author: "Atlas of Living Australia"
   date: "5/2/2023"
-  search: 
+  search:
     location: navbar
     type: textbox
   page-navigation: false
@@ -14,11 +14,27 @@ book:
     font: Roboto
   navbar:
     background: primary
-    title: "RASD Framework"
-    href: "https://rasd.org.au"
+    title: false
+    left:
+      - icon: "house-fill"
+        href: "https://rasd.org.au/"
+    right:
+      - text: "Framework"
+        href: "index.html"
+      - text: "RASD Service"
+        href: "https://service.rasd.org.au/"
+      - text: "Project Overview"
+        href: "../pdf/RASD-Project-Overview.pdf"
+      - text: "FAQs"
+        href: "../pdf/RASD-FAQs.pdf"
+      - text: "Contact Us"
+        href: "#contact"
   page-footer:
     background: info
-    center: 
+    left:
+      - text: "Contact us"
+        href: "mailto:info@rasd.org.au"
+    center:
       - text: "rasd.org.au"
         href: "https://rasd.org.au"
   chapters:
@@ -74,8 +90,10 @@ format:
     linestretch: 1.7
     toc-title: "On this page"
     tbl-colwidths: [30,50,60,40]
+    lightbox:
+      match: auto
+      effect: zoom
   pdf:
     documentclass: scrreprt
 
 editor: visual
-

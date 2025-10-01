@@ -10,6 +10,9 @@
           <o-button v-if="!this.editMode" class="button mr-4 is-align-items-self-end" @click="this.setEditMode()"
             >Edit</o-button
           >
+          <o-button v-if="!this.editMode" class="button is-danger is-align-items-self-end" @click="this.confirmDelete()"
+            >Delete</o-button
+          >
         </div>
       </div>
       <h2 class="is-size-3">Metadata details</h2>
@@ -28,8 +31,26 @@
           @blur="this.titleValidate"></o-input>
       </div>
       <div class="field">
-        <o-field class="label">Abstract:</o-field>
-        <o-input v-model="metadata.abstract" :disabled="!editMode" maxlength="500"></o-input>
+        <o-field
+          class="label"
+          :variant="this.abstractValidation.abstractClasses === 'is-danger' ? 'danger' : ''"
+          :message="this.abstractValidation.abstractClasses === 'is-danger' ? 'Abstract must not be empty' : ''"
+          >* Abstract:</o-field
+        >
+        <o-input
+          v-model="metadata.abstract"
+          :class="this.abstractValidation.abstractClasses"
+          maxlength="2000"
+          type="textarea"
+          rows="4"
+          :disabled="!editMode"
+          @blur="this.abstractValidate"></o-input>
+        <p class="help" :class="{ 'has-text-danger': metadata.abstract && metadata.abstract.length >= 2000 }">
+          {{ metadata.abstract ? metadata.abstract.length : 0 }}/2000 characters
+          <span v-if="metadata.abstract && metadata.abstract.length >= 2000" class="has-text-danger"
+            >- Limit reached!</span
+          >
+        </p>
       </div>
       <div class="field">
         <o-field
@@ -38,13 +59,7 @@
           :message="this.keywordValidation.keywordClasses === 'is-danger' ? 'Keywords must not be empty' : ''"
           >* Keywords:</o-field
         >
-        <o-dropdown
-          v-if="keywordsOptions"
-          :disabled="!editMode"
-          v-model="metadata.keywords"
-          @focusout="this.keywordValidate"
-          multiple
-          role="list">
+        <o-dropdown v-if="keywordsOptions" :disabled="!editMode" v-model="metadata.keywords" multiple role="list">
           <template #trigger>
             <o-button variant="primary" type="button" :class="this.keywordValidation.keywordClasses">
               <span v-if="metadata.keywords"
@@ -144,12 +159,7 @@
           :message="this.locationsValidation.locationsClasses === 'is-danger' ? 'Location must not be empty' : ''"
           >* Locations:</o-field
         >
-        <o-dropdown
-          v-model="metadata.locations"
-          role="list"
-          multiple
-          @focusout="this.locationsValidate"
-          :disabled="!editMode">
+        <o-dropdown v-model="metadata.locations" role="list" multiple :disabled="!editMode">
           <template #trigger>
             <o-button variant="primary" :class="this.locationsValidation.locationsClasses">
               {{ locations_text }}
@@ -186,12 +196,7 @@
           "
           >* Collection Methods:</o-field
         >
-        <o-dropdown
-          v-model="metadata.collection_methods"
-          @focusout="this.collectionMethodValidate"
-          multiple
-          role="list"
-          :disabled="!editMode">
+        <o-dropdown v-model="metadata.collection_methods" multiple role="list" :disabled="!editMode">
           <template #trigger>
             <o-button
               variant="primary"
@@ -325,7 +330,7 @@
           "
           >* Stored Format:</o-field
         >
-        <o-dropdown v-model="metadata.stored_format" @focusout="this.storedFormatValidate" :disabled="!editMode">
+        <o-dropdown v-model="metadata.stored_format" :disabled="!editMode">
           <template #trigger>
             <o-button variant="primary" type="button" :class="this.storedFormatValidation.storedFormatClasses">
               <span>{{ metadata.stored_format ? metadata.stored_format : 'Select a stored format' }}</span>
@@ -347,12 +352,7 @@
           "
           >* Available Formats:</o-field
         >
-        <o-dropdown
-          v-model="metadata.available_formats"
-          multiple
-          role="list"
-          :disabled="!editMode"
-          @focusout="this.availableFormatsValidate">
+        <o-dropdown v-model="metadata.available_formats" multiple role="list" :disabled="!editMode">
           <template #trigger>
             <o-button variant="primary" type="button" :class="this.availableFormatsValidation.availableFormatsClasses">
               <span>
@@ -374,7 +374,7 @@
           "
           >* Access Rights:</o-field
         >
-        <o-dropdown v-model="metadata.access_rights" :disabled="!editMode" @focusout="this.accessRightsValidate">
+        <o-dropdown v-model="metadata.access_rights" :disabled="!editMode">
           <template #trigger>
             <o-button variant="primary" :class="this.accessRightsValidation.accessRightsClasses">
               <span>{{ metadata.access_rights ? metadata.access_rights : 'Please select an access right' }}</span>
@@ -415,10 +415,7 @@
           "
           >* Security Classification:</o-field
         >
-        <o-dropdown
-          v-model="metadata.security_classification"
-          :disabled="!editMode"
-          @focusout="this.securityClassificationValidate">
+        <o-dropdown v-model="metadata.security_classification" :disabled="!editMode">
           <template #trigger>
             <o-button variant="primary" :class="this.securityClassificationValidation.securityClassificationClasses">
               <span>{{
@@ -454,6 +451,7 @@
       </div>
       <div class="is-flex is-justify-content-start">
         <o-button v-if="!this.editMode" class="button mr-4" @click="this.setEditMode()">Edit</o-button>
+        <o-button v-if="!this.editMode" class="button is-danger mr-4" @click="this.confirmDelete()">Delete</o-button>
         <o-button
           v-if="this.editMode"
           :disabled="canSubmitForm || this.loading"
@@ -481,6 +479,7 @@ import {
   getKeywordsAPI,
   getLocationsAPI,
   getSecurityClassificationsAPI,
+  deleteMetadataAPI,
 } from '../api/api';
 import {
   accessRightsValidator,
@@ -505,6 +504,7 @@ import {
   titleValidator,
   useRestrictionsValidator,
   westCoordinateValidator,
+  abstractValidator,
 } from '../helpers/helpers';
 import { useProgrammatic } from '@oruga-ui/oruga-next';
 export default {
@@ -520,6 +520,7 @@ export default {
     canSubmitForm() {
       return !(
         this.titleValidation.valid &&
+        this.abstractValidation.valid &&
         this.keywordValidation.valid &&
         this.temporalCoverageFromValidation.valid &&
         this.temporalCoverageToValidation.valid &&
@@ -536,6 +537,7 @@ export default {
         this.contactPositionValidation.valid &&
         this.contactEmailValidation.valid &&
         this.storedFormatValidation.valid &&
+        this.availableFormatsValidation.valid &&
         this.accessRightsValidation.valid &&
         this.useRestrictionsValidation.valid &&
         this.securityClassificationValidation.valid &&
@@ -560,7 +562,7 @@ export default {
       if (this.metadata.locations?.length === 0) {
         return 'Select a location';
       } else {
-        return this.metadata?.locations.slice(0, 7).join(', ').toString();
+        return this.metadata?.locations.slice(0, 7).toString();
       }
     },
     collection_methods_text() {
@@ -671,6 +673,10 @@ export default {
         valid: true,
         generalisationsClasses: '',
       },
+      abstractValidation: {
+        valid: true,
+        abstractClasses: '',
+      },
       accessRightsOptions: [],
       collectionMethodsOptions: [],
       formatsOptions: [],
@@ -691,10 +697,107 @@ export default {
           ? null
           : new Date(this.metadata.embargo_release_date);
     },
+    'metadata.title'() {
+      this.editMode && this.titleValidate();
+    },
+    'metadata.keywords'() {
+      this.editMode && this.keywordValidate();
+    },
+    'metadata.temporal_coverage_from'() {
+      this.editMode && this.temporalCoverageFromValidate();
+    },
+    'metadata.temporal_coverage_to'() {
+      this.editMode && this.temporalCoverageToValidate();
+    },
+    'metadata.north_bounding_coordinate'() {
+      this.editMode && this.northBoundingCoordinateValidate();
+    },
+    'metadata.south_bounding_coordinate'() {
+      this.editMode && this.southBoundingCoordinateValidate();
+    },
+    'metadata.east_bounding_coordinate'() {
+      this.editMode && this.eastBoundingCoordinateValidate();
+    },
+    'metadata.west_bounding_coordinate'() {
+      this.editMode && this.westBoundingCoordinateValidate();
+    },
+    'metadata.locations'() {
+      this.editMode && this.locationsValidate();
+    },
+    'metadata.taxa_covered'() {
+      this.editMode && this.taxaCoveredValidate();
+    },
+    'metadata.collection_methods'() {
+      this.editMode && this.collectionMethodValidate();
+    },
+    'metadata.data_source_doi'() {
+      this.editMode && this.dataSourceValidate();
+    },
+    'metadata.data_source_url'() {
+      this.editMode && this.dataSourceValidate();
+    },
+    'metadata.custodian'() {
+      this.editMode && this.custodianValidate();
+    },
+    'metadata.contact_organisation'() {
+      this.editMode && this.contactOrganisationValidate();
+    },
+    'metadata.contact_position'() {
+      this.editMode && this.contactPositionValidate();
+    },
+    'metadata.contact_email'() {
+      this.editMode && this.contactEmailValidate();
+    },
+    'metadata.stored_format'() {
+      this.editMode && this.storedFormatValidate();
+    },
+    'metadata.available_formats'() {
+      this.editMode && this.availableFormatsValidate();
+    },
+    'metadata.access_rights'() {
+      this.editMode && this.accessRightsValidate();
+    },
+    'metadata.use_restrictions'() {
+      this.editMode && this.useRestrictionsValidate();
+    },
+    'metadata.security_classification'() {
+      this.editMode && this.securityClassificationValidate();
+    },
+    'metadata.generalisations'() {
+      this.editMode && this.generalisationsValidate();
+    },
+    'metadata.abstract'() {
+      this.editMode && this.abstractValidate();
+    },
   },
   methods: {
     setEditMode() {
       this.editMode = true;
+      this.$nextTick(() => {
+        this.titleValidate();
+        this.abstractValidate();
+        this.keywordValidate();
+        this.temporalCoverageFromValidate();
+        this.temporalCoverageToValidate();
+        this.northBoundingCoordinateValidate();
+        this.southBoundingCoordinateValidate();
+        this.eastBoundingCoordinateValidate();
+        this.westBoundingCoordinateValidate();
+        this.locationsValidate();
+        this.taxaCoveredValidate();
+        this.collectionMethodValidate();
+        this.dataSourceValidate();
+        this.custodianValidate();
+        this.contactOrganisationValidate();
+        this.contactPositionValidate();
+        this.contactEmailValidate();
+        this.storedFormatValidate();
+        this.availableFormatsValidate();
+        this.accessRightsValidate();
+        this.useRestrictionsValidate();
+        this.securityClassificationValidate();
+        this.generalisationsValidate();
+      });
     },
     async getMetadata() {
       this.loading = true;
@@ -714,7 +817,9 @@ export default {
       this.titleValidation = titleValidator(this.metadata.title);
     },
     keywordValidate() {
-      this.keywordValidation = keywordsValidator(this.metadata.keywords);
+      this.$nextTick(() => {
+        this.keywordValidation = keywordsValidator(this.metadata.keywords);
+      });
     },
     temporalCoverageFromValidate() {
       this.temporalCoverageFromValidation = temporalCoverageFromValidator(this.metadata.temporal_coverage_from);
@@ -743,13 +848,17 @@ export default {
       );
     },
     locationsValidate() {
-      this.locationsValidation = locationsValidator(this.metadata.locations);
+      this.$nextTick(() => {
+        this.locationsValidation = locationsValidator(this.metadata.locations);
+      });
     },
     taxaCoveredValidate() {
       this.taxaCoveredValidation = taxaValidator(this.metadata.taxa_covered);
     },
     collectionMethodValidate() {
-      this.collectionMethodsValidation = collectionValidator(this.metadata.collection_methods);
+      this.$nextTick(() => {
+        this.collectionMethodsValidation = collectionValidator(this.metadata.collection_methods);
+      });
     },
     dataSourceValidate() {
       this.dataSourceValidation = dataSourceValidator(this.metadata.data_source_doi, this.metadata.data_source_url);
@@ -767,22 +876,33 @@ export default {
       this.contactEmailValidation = emailValidator(this.metadata.contact_email);
     },
     storedFormatValidate() {
-      this.storedFormatValidation = storedFormatValidator(this.metadata.stored_format);
+      this.$nextTick(() => {
+        this.storedFormatValidation = storedFormatValidator(this.metadata.stored_format);
+      });
     },
     availableFormatsValidate() {
-      this.availableFormatsValidation = availableFormatsValidator(this.metadata.available_formats);
+      this.$nextTick(() => {
+        this.availableFormatsValidation = availableFormatsValidator(this.metadata.available_formats);
+      });
     },
     accessRightsValidate() {
-      this.accessRightsValidation = accessRightsValidator(this.metadata.access_rights);
+      this.$nextTick(() => {
+        this.accessRightsValidation = accessRightsValidator(this.metadata.access_rights);
+      });
     },
     useRestrictionsValidate() {
       this.useRestrictionsValidation = useRestrictionsValidator(this.metadata.use_restrictions);
     },
     securityClassificationValidate() {
-      this.securityClassificationValidation = securityClassificationValidator(this.metadata.security_classification);
+      this.$nextTick(() => {
+        this.securityClassificationValidation = securityClassificationValidator(this.metadata.security_classification);
+      });
     },
     generalisationsValidate() {
       this.generalisationsValidation = generalisationsValidator(this.metadata.generalisations);
+    },
+    abstractValidate() {
+      this.abstractValidation = abstractValidator(this.metadata.abstract);
     },
     async editMetadata() {
       const { oruga } = useProgrammatic();
@@ -825,9 +945,6 @@ export default {
           position: 'top',
           closable: true,
         });
-        if (this.notification[1]) {
-          return this.clearFields();
-        }
       }
 
       setTimeout(() => {
@@ -843,6 +960,51 @@ export default {
       this.locationsOptions = await getLocationsAPI();
       this.securityClassificationOptions = await getSecurityClassificationsAPI();
       this.loading = false;
+    },
+    confirmDelete() {
+      if (
+        confirm(`Are you sure you want to delete the metadata "${this.metadata.title}"? This action cannot be undone.`)
+      ) {
+        this.deleteMetadata();
+      }
+    },
+    async deleteMetadata() {
+      const { oruga } = useProgrammatic();
+      this.loading = true;
+
+      try {
+        const response = await deleteMetadataAPI(this.metadata.id);
+        this.loading = false;
+
+        if (response[1]) {
+          oruga.notification.open({
+            duration: 5000,
+            message: response[0],
+            variant: 'success',
+            position: 'top',
+            closable: true,
+          });
+
+          this.$router.push('/metadata');
+        } else {
+          oruga.notification.open({
+            duration: 10000,
+            message: response[0],
+            variant: 'danger',
+            position: 'top',
+            closable: true,
+          });
+        }
+      } catch (error) {
+        this.loading = false;
+        oruga.notification.open({
+          duration: 10000,
+          message: 'An error occurred while deleting the metadata.',
+          variant: 'danger',
+          position: 'top',
+          closable: true,
+        });
+      }
     },
   },
 };

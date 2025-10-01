@@ -139,7 +139,8 @@
           </header>
           <div
             class="card-content has-background-warning-light"
-            :class="{ active: openCollapsibles[dataAccessRequest.id] }">
+            :class="{ active: openCollapsibles[dataAccessRequest.id] }"
+            :data-collapsible-content="dataAccessRequest.id">
             <h4 class="is-size-4 has-text-weight-bold py-2 pl-5 has-text-black">
               Status of datasets included in request ({{ getFilteredDatasetRequests(dataAccessRequest).length }})
             </h4>
@@ -311,7 +312,8 @@
         </header>
         <div
           class="card-content has-background-warning-light"
-          :class="{ active: openCollapsibles[dataAccessRequest.id] }">
+          :class="{ active: openCollapsibles[dataAccessRequest.id] }"
+          :data-collapsible-content="dataAccessRequest.id">
           <h4 class="is-size-4 has-text-weight-bold py-2 pl-6 ml-5 has-text-black">
             Status of datasets included in request ({{ getFilteredDatasetRequests(dataAccessRequest).length }})
           </h4>
@@ -448,6 +450,7 @@
 
   <DataAccessRequest
     v-if="openAccessRequest"
+    ref="darForm"
     :read-only-fields="openAccessRequest"
     :access-values="[openAccessRequest.data.access]"
     :industryClassification-values="[openAccessRequest.project.industry]"
@@ -549,10 +552,102 @@ export default defineComponent({
   methods: {
     toggleCollapsible(key: string) {
       this.openCollapsibles[key] = !this.openCollapsibles[key];
+
+      if (this.openCollapsibles[key]) {
+        this.$nextTick(() => {
+          this.scrollToExpandedCard(key);
+        });
+      }
+    },
+    scrollToExpandedCard(key: string): void {
+      const collapsibleContent = document.querySelector(`[data-collapsible-content="${key}"]`);
+      const darCard = collapsibleContent?.closest('.card') as HTMLElement;
+      if (!collapsibleContent || !darCard) {
+        console.warn(`Could not find collapsible content or card for key: ${key}`);
+        return;
+      }
+      let scrollAttempts = 0;
+      const performScroll = (): void => {
+        if (scrollAttempts >= 3) {
+          console.warn(`Max scroll attempts reached for card: ${key}`);
+          return;
+        }
+        scrollAttempts++;
+        darCard.getBoundingClientRect();
+        darCard.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        });
+        this.setElementFocus(darCard);
+        setTimeout(() => {
+          const cardRect = darCard.getBoundingClientRect();
+          const isScrolledToTop = cardRect.top >= -10 && cardRect.top <= 50;
+
+          if (!isScrolledToTop) {
+            performScroll();
+          }
+        }, 10);
+      };
+      setTimeout(performScroll, 10);
+    },
+    scrollToCollapsibleContent(key: string): void {
+      this.$nextTick(() => {
+        const collapsibleContent = document.querySelector(`[data-collapsible-content="${key}"]`) as HTMLElement;
+        if (!collapsibleContent) {
+          console.warn(`Could not find collapsible content for key: ${key}`);
+          return;
+        }
+
+        const navbar = document.querySelector('.navbar.is-fixed-top') as HTMLElement;
+        const navbarHeight = navbar ? navbar.offsetHeight : 60;
+
+        let scrollAttempts = 0;
+        const performScroll = (): void => {
+          if (scrollAttempts >= 3) {
+            console.warn(`Max scroll attempts reached for collapsible content`);
+            return;
+          }
+          scrollAttempts++;
+
+          const contentRect = collapsibleContent.getBoundingClientRect();
+          const offsetFromTop = contentRect.top + window.scrollY - navbarHeight;
+
+          window.scrollTo({
+            top: offsetFromTop,
+            behavior: 'smooth',
+          });
+
+          setTimeout(() => {
+            const newContentRect = collapsibleContent.getBoundingClientRect();
+            const isScrolledToPosition =
+              newContentRect.top >= navbarHeight - 10 && newContentRect.top <= navbarHeight + 50;
+
+            if (!isScrolledToPosition) {
+              performScroll();
+            } else {
+              this.setElementFocus(collapsibleContent);
+            }
+          }, 300);
+        };
+        setTimeout(performScroll, 10);
+      });
+    },
+    setElementFocus(element: HTMLElement): void {
+      element.setAttribute('tabindex', '-1');
+      element.focus();
+      element.removeAttribute('tabindex');
     },
     async getAccessRequests(cursor?: string | undefined) {
       const response = await getAccessRequestsAPI(this.role, this.limit, cursor);
       this.dataAccessRequests = response.data?.results || [];
+
+      // Sort by date descending (most recent first)
+      this.dataAccessRequests.sort((a, b) => {
+        const dateA = new Date(a.datasetRequests[0]?.audit[0]?.at || 0).getTime();
+        const dateB = new Date(b.datasetRequests[0]?.audit[0]?.at || 0).getTime();
+        return dateB - dateA;
+      });
+
       this.currentCursor = response.data?.cursor;
       this.idFilter = undefined;
     },
@@ -569,6 +664,13 @@ export default defineComponent({
     setOpenDatasetRequest(accessRequestId: string | undefined, datasetRequestId: string | undefined) {
       this.openAccessRequestId = accessRequestId;
       this.openDatasetRequestId = datasetRequestId;
+
+      if (accessRequestId && datasetRequestId) {
+        this.openCollapsibles[accessRequestId] = true;
+        this.$nextTick(() => {
+          this.scrollToCollapsibleContent(accessRequestId);
+        });
+      }
     },
     getFilteredDatasetRequests(dataAccessRequest: DataAccessRequestRead) {
       return this.openDatasetRequest ? [this.openDatasetRequest] : dataAccessRequest.datasetRequests;
@@ -738,5 +840,9 @@ export default defineComponent({
 .parent-status {
   padding-right: 2rem;
   text-align: right;
+}
+
+.card {
+  scroll-margin-top: 60px;
 }
 </style>

@@ -37,7 +37,12 @@
         v-model:selected="selected"
         hoverable>
         <o-table-column v-for="column in columns" v-bind="column" #default="{ row }" :visible="column.display">
-          {{ Array.isArray(row[column.field]) ? row[column.field].join(', ') : row[column.field] }}
+          <span v-if="column.field === 'abstract' && row[column.field]">
+            {{ row[column.field].length > 150 ? row[column.field].substring(0, 150) + '...' : row[column.field] }}
+          </span>
+          <span v-else>
+            {{ Array.isArray(row[column.field]) ? row[column.field].join(', ') : row[column.field] }}
+          </span>
         </o-table-column>
         <o-table-column width="100">
           <!--Exists for visual/ux purposes the click functionality comes from the table-->
@@ -149,6 +154,13 @@ export default {
     async getMetadata(count = 20, cursor = '') {
       this.loading = true;
       this.metadata = await getMetadataListAPI(count, cursor);
+      if (this.metadata?.results) {
+        this.metadata.results.sort((a, b) => {
+          const titleA = (a.title || '').toLowerCase();
+          const titleB = (b.title || '').toLowerCase();
+          return titleA.localeCompare(titleB);
+        });
+      }
     },
     routeToAddMetadata() {
       this.$router.push('/metadata/add');

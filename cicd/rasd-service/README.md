@@ -2,7 +2,7 @@
 
 ## Overview
 
-The RASD backend is a Python 3.9 AWS Lambda which uses FastAPI and Mangum and is deployed with CodePipeline and CloudFormation.
+The RASD backend is a Python 3.13 AWS Lambda which uses FastAPI and Mangum and is deployed with CodePipeline and CloudFormation.
 
 ## Table of Contents
 
@@ -78,7 +78,7 @@ Another thing to setup is AWS secrets. The `ABN_LOOKUP_GUID` variable should be 
 
 This project requires:
 
-- Python 3.9
+- Python 3.13
 - Poetry
 
 ### Installation
@@ -86,8 +86,8 @@ This project requires:
 To install the dependencies for this project:
 
 ```shell
-# Ensure your current Python version is 3.9
-$ pyenv local 3.9
+# Ensure your current Python version is 3.13
+$ pyenv local 3.13
 
 # Install dependencies using Poetry
 $ poetry install

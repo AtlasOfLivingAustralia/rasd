@@ -330,3 +330,52 @@ async def update_metadata(
 
     # Return
     return obj
+
+
+@router.delete(r"/{pk}", response_model=metadata_models.RASDMetadata)
+async def delete_metadata(
+    *,
+    user: auth.User = fastapi.Depends(security.require_admin_or_custodian),  # noqa: B008
+    db_session: boto3.Session = fastapi.Depends(session.db_session),  # noqa: B008
+    pk: uuid.UUID,
+) -> metadata_models.RASDMetadata:
+    """Delete Metadata endpoint for REST API.
+
+    Args:
+        user (auth.User): Currently logged in user via dependency injection.
+        db_session (boto3.Session): Dependency injection database session.
+        pk (uuid.UUID): Primary key of the Metadata to delete.
+
+    Returns:
+        metadata_models.RASDMetadata: Deleted Metadata.
+    """
+    # Retrieve Metadata
+    metadata = utils.unwrap_or_404(
+        value=metadata_crud.metadata.get(db_session, pk=pk),
+    )
+
+    # Check Permissions
+    # Administrators can delete *any* Metadata, whereas Data Custodians can
+    # only delete Metadata for *their* Organisation.
+    if not user.is_admin() and metadata.organisation_id != user.organisation_id:
+        # Not allowed, Data Custodian can only delete *their* Metadata
+        # We raise a `404` (rather than `403`) so that information is not leaked
+        raise fastapi.HTTPException(
+            status_code=fastapi.status.HTTP_404_NOT_FOUND,
+        )
+
+    # Delete Metadata
+    deleted_metadata = metadata_crud.metadata.delete(
+        db_session,
+        pk=pk,
+    )
+
+    # Check if deletion was successful
+    if not deleted_metadata:
+        raise fastapi.HTTPException(
+            status_code=fastapi.status.HTTP_404_NOT_FOUND,
+        )
+
+    # Return the deleted metadata
+    return deleted_metadata
+

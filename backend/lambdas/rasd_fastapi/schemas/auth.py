@@ -23,7 +23,7 @@ class User(base.BaseSchema):
     """Base User Schema."""
     id: uuid.UUID = pydantic.Field(alias="sub")  # noqa: A003
     given_name: str
-    family_name: str 
+    family_name: str
     email: pydantic.EmailStr
     organisation_id: uuid.UUID = pydantic.Field(alias="custom:organisation_id")
     groups: list[Group] = pydantic.Field(alias="cognito:groups")

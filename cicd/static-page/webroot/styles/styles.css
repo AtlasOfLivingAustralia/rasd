@@ -27,7 +27,7 @@ ul {
 .hub-header__container {
     
     background-color: #0c6c4f;
-    padding-top: 120px;
+    padding-top: 50px;
     padding-bottom: 20px;
     padding-right: 100px;
 }
@@ -183,4 +183,66 @@ ul {
 
 .tou {
     padding-right: 35px;
+}
+
+.rasd-navbar {
+    background-color: #0c6c4f !important;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    border: none;
+}
+
+.rasd-navbar .container-fluid {
+    padding-left: 120px;
+    padding-right: 120px;
+}
+
+.rasd-navbar .navbar-brand {
+    padding-left: 0;
+}
+
+.rasd-navbar .navbar-nav .nav-link {
+    color: #fff;
+    padding-left: 15px;
+    padding-right: 15px;
+    transition: color 0.3s;
+}
+
+.rasd-navbar .navbar-nav .nav-link:hover {
+    color: #a0e6c1;
+}
+
+.rasd-navbar .navbar-toggler {
+    margin-right: 0;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+@media (max-width: 991.98px) {
+    .rasd-navbar .navbar-nav {
+        text-align: right;
+        margin-top: 10px;
+    }
+
+    .rasd-navbar .navbar-nav .nav-link {
+        padding-left: 0;
+        padding-right: 0;
+        padding-top: 8px;
+        padding-bottom: 8px;
+    }
+
+    .rasd-navbar .navbar-brand {
+        display: block;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    .rasd-navbar .navbar-collapse {
+        background-color: #0c6c4f;
+        padding: 10px 0;
+        border-radius: 0 0 8px 8px;
+    }
+
+    .rasd-navbar .navbar-nav .nav-item + .nav-item {
+        margin-top: 5px;
+    }
 }

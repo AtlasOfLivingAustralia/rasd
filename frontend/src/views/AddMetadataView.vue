@@ -17,8 +17,23 @@
           @blur="this.titleValidate"></o-input>
       </div>
       <div class="field">
-        <o-field class="label">Abstract:</o-field>
-        <o-input v-model="abstract" maxlength="500"></o-input>
+        <o-field
+          class="label"
+          :variant="this.abstractValidation.abstractClasses === 'is-danger' ? 'danger' : ''"
+          :message="this.abstractValidation.abstractClasses === 'is-danger' ? 'Abstract must not be empty' : ''"
+          >* Abstract:</o-field
+        >
+        <o-input
+          v-model="abstract"
+          :class="this.abstractValidation.abstractClasses"
+          maxlength="2000"
+          type="textarea"
+          rows="4"
+          @blur="this.abstractValidate"></o-input>
+        <p class="help" :class="{ 'has-text-danger': abstract.length >= 2000 }">
+          {{ abstract.length }}/2000 characters
+          <span v-if="abstract.length >= 2000" class="has-text-danger">- Limit reached!</span>
+        </p>
       </div>
       <div class="field">
         <o-field
@@ -27,7 +42,7 @@
           :message="this.keywordValidation.keywordClasses === 'is-danger' ? 'Keywords must not be empty' : ''"
           >* Keywords:</o-field
         >
-        <o-dropdown v-if="keywordsOptions" v-model="keywords" @focusout="this.keywordValidate" multiple role="list">
+        <o-dropdown v-if="keywordsOptions" v-model="keywords" @change="this.keywordValidate" multiple role="list">
           <template #trigger>
             <o-button variant="primary" :class="this.keywordValidation.keywordClasses" type="button">
               <span v-if="keywords">
@@ -154,7 +169,7 @@
           :message="this.locationsValidation.locationsClasses === 'is-danger' ? 'Location must not be empty' : ''"
           >* Locations:</o-field
         >
-        <o-dropdown v-if="locationsOptions" v-model="locations" multiple ole="list" @focusout="this.locationsValidate">
+        <o-dropdown v-if="locationsOptions" v-model="locations" multiple ole="list" @change="this.locationsValidate">
           <template #trigger>
             <o-button variant="primary" :class="this.locationsValidation.locationsClasses" type="button">
               <span v-if="locations"> {{ locations_text }}<span v-if="locations.length > 7">...</span> </span>
@@ -190,7 +205,7 @@
           "
           >* Collection Methods:</o-field
         >
-        <o-dropdown v-model="collection_methods" @focusout="this.collectionMethodValidate" multiple role="list">
+        <o-dropdown v-model="collection_methods" @change="this.collectionMethodValidate" multiple role="list">
           <template #trigger>
             <o-button variant="primary" type="button" :class="collectionMethodsValidation.collectionMethodsClasses">
               <span>{{ collection_methods_text }}</span>
@@ -307,7 +322,7 @@
           "
           >* Stored Format:</o-field
         >
-        <o-dropdown v-model="stored_format" @focusout="this.storedFormatValidate">
+        <o-dropdown v-model="stored_format" @change="this.storedFormatValidate">
           <template #trigger>
             <o-button variant="primary" type="button" :class="this.storedFormatValidation.storedFormatClasses">
               <span>{{ stored_format ? stored_format : 'Select a stored format' }}</span>
@@ -329,7 +344,7 @@
           "
           >* Available Formats:</o-field
         >
-        <o-dropdown v-model="available_formats" multiple role="list" @focusout="this.availableFormatsValidate">
+        <o-dropdown v-model="available_formats" multiple role="list" @change="this.availableFormatsValidate">
           <template #trigger>
             <o-button variant="primary" :class="this.availableFormatsValidation.availableFormatsClasses" type="button">
               <span>{{ available_formats_text }}</span>
@@ -349,7 +364,7 @@
           "
           >* Access Rights:</o-field
         >
-        <o-dropdown v-model="access_rights" @focusout="this.accessRightsValidate">
+        <o-dropdown v-model="access_rights" @change="this.accessRightsValidate">
           <template #trigger>
             <o-button variant="primary" :class="this.accessRightsValidation.accessRightsClasses">
               <span>{{ access_rights ? access_rights : 'Please select an access right' }}</span>
@@ -389,7 +404,7 @@
           "
           >* Security Classification:</o-field
         >
-        <o-dropdown v-model="security_classification" @focusout="this.securityClassificationValidate">
+        <o-dropdown v-model="security_classification" @change="this.securityClassificationValidate">
           <template #trigger>
             <o-button variant="primary" :class="this.securityClassificationValidation.securityClassificationClasses">
               <span>{{ security_classification ? security_classification : 'Select a security classification' }}</span>
@@ -446,6 +461,7 @@ import {
   getSecurityClassificationsAPI,
 } from '../api/api';
 import {
+  abstractValidator,
   accessRightsValidator,
   availableFormatsValidator,
   collectionValidator,
@@ -484,6 +500,7 @@ export default {
     canSubmitForm() {
       return !(
         this.titleValidation.valid &&
+        this.abstractValidation.valid &&
         this.keywordValidation.valid &&
         this.temporalCoverageFromValidation.valid &&
         this.temporalCoverageToValidation.valid &&
@@ -499,6 +516,7 @@ export default {
         this.contactPositionValidation.valid &&
         this.contactEmailValidation.valid &&
         this.storedFormatValidation.valid &&
+        this.availableFormatsValidation.valid &&
         this.accessRightsValidation.valid &&
         this.useRestrictionsValidation.valid &&
         this.securityClassificationValidation.valid &&
@@ -542,6 +560,10 @@ export default {
         titleClasses: '',
       },
       abstract: '',
+      abstractValidation: {
+        valid: false,
+        abstractClasses: '',
+      },
       keywords: null,
       keywordValidation: {
         valid: false,
@@ -674,6 +696,57 @@ export default {
         this.embargo_release_date = null;
       }
     },
+    title() {
+      this.titleValidate();
+    },
+    keywords() {
+      this.keywordValidate();
+    },
+    temporal_coverage_from() {
+      this.temporalCoverageFromValidate();
+    },
+    temporal_coverage_to() {
+      this.temporalCoverageToValidate();
+    },
+    north_bounding_coordinate() {
+      this.northBoundingCoordinateValidate();
+    },
+    south_bounding_coordinate() {
+      this.southBoundingCoordinateValidate();
+    },
+    east_bounding_coordinate() {
+      this.eastBoundingCoordinateValidate();
+    },
+    west_bounding_coordinate() {
+      this.westBoundingCoordinateValidate();
+    },
+    locations() {
+      this.locationsValidate();
+    },
+    taxa_covered() {
+      this.taxaCoveredValidate();
+    },
+    collection_methods() {
+      this.collectionMethodValidate();
+    },
+    data_source_doi() {
+      this.dataSourceValidate();
+    },
+    data_source_url() {
+      this.dataSourceValidate();
+    },
+    contact_organisation() {
+      this.contactOrganisationValidate();
+    },
+    contact_position() {
+      this.contactPositionValidate();
+    },
+    contact_email() {
+      this.contactEmailValidate();
+    },
+    stored_format() {
+      this.storedFormatValidate();
+    },
   },
   methods: {
     async getOptions() {
@@ -702,8 +775,13 @@ export default {
     titleValidate() {
       this.titleValidation = titleValidator(this.title);
     },
+    abstractValidate() {
+      this.abstractValidation = abstractValidator(this.abstract);
+    },
     keywordValidate() {
-      this.keywordValidation = keywordsValidator(this.keywords);
+      this.$nextTick(() => {
+        this.keywordValidation = keywordsValidator(this.keywords);
+      });
     },
     temporalCoverageFromValidate() {
       this.temporalCoverageFromValidation = temporalCoverageFromValidator(this.temporal_coverage_from);
@@ -724,13 +802,17 @@ export default {
       this.westBoundingCoordinateValidation = westCoordinateValidator(this.west_bounding_coordinate);
     },
     locationsValidate() {
-      this.locationsValidation = locationsValidator(this.locations);
+      this.$nextTick(() => {
+        this.locationsValidation = locationsValidator(this.locations);
+      });
     },
     taxaCoveredValidate() {
       this.taxaCoveredValidation = taxaValidator(this.taxa_covered);
     },
     collectionMethodValidate() {
-      this.collectionMethodsValidation = collectionValidator(this.collection_methods);
+      this.$nextTick(() => {
+        this.collectionMethodsValidation = collectionValidator(this.collection_methods);
+      });
     },
     dataSourceValidate() {
       this.dataSourceValidation = dataSourceValidator(this.data_source_doi, this.data_source_url);
@@ -748,19 +830,27 @@ export default {
       this.contactEmailValidation = emailValidator(this.contact_email);
     },
     storedFormatValidate() {
-      this.storedFormatValidation = storedFormatValidator(this.stored_format);
+      this.$nextTick(() => {
+        this.storedFormatValidation = storedFormatValidator(this.stored_format);
+      });
     },
     availableFormatsValidate() {
-      this.availableFormatsValidation = availableFormatsValidator(this.available_formats);
+      this.$nextTick(() => {
+        this.availableFormatsValidation = availableFormatsValidator(this.available_formats);
+      });
     },
     accessRightsValidate() {
-      this.accessRightsValidation = accessRightsValidator(this.access_rights);
+      this.$nextTick(() => {
+        this.accessRightsValidation = accessRightsValidator(this.access_rights);
+      });
     },
     useRestrictionsValidate() {
       this.useRestrictionsValidation = useRestrictionsValidator(this.use_restrictions);
     },
     securityClassificationValidate() {
-      this.securityClassificationValidation = securityClassificationValidator(this.security_classification);
+      this.$nextTick(() => {
+        this.securityClassificationValidation = securityClassificationValidator(this.security_classification);
+      });
     },
     generalisationsValidate() {
       this.generalisationsValidation = generalisationsValidator(this.generalisations);
@@ -805,126 +895,10 @@ export default {
           duration: 10000,
         });
         if (this.notification[1]) {
-          return this.clearFields();
+          const metadataId = this.notification[2];
+          this.$router.push(`/metadata/${metadataId}`);
         }
       }
-    },
-    clearFields() {
-      this.title = '';
-      this.titleValidation = {
-        valid: false,
-        titleClasses: '',
-      };
-      this.abstract = '';
-      this.keywords = '';
-      this.keywordValidation = {
-        valid: false,
-        keywordsClasses: '',
-      };
-      this.temporal_coverage_from = null;
-      this.temporalCoverageFromValidation = {
-        valid: false,
-        temporalCoverageFromClasses: '',
-      };
-      this.temporal_coverage_to = null;
-      this.temporalCoverageToValidation = {
-        valid: false,
-        temporalCoverageToClasses: '',
-      };
-      this.north_bounding_coordinate = '';
-      this.northBoundingCoordinateValidation = {
-        valid: false,
-        northBoundingCoordinateClasses: '',
-      };
-      this.south_bounding_coordinate = '';
-      this.southBoundingCoordinateValidation = {
-        valid: false,
-        southBoundingCoordinateClasses: '',
-      };
-      this.east_bounding_coordinate = '';
-      this.eastBoundingCoordinateValidation = {
-        valid: false,
-        eastBoundingCoordinateClasses: '',
-      };
-      this.west_bounding_coordinate = '';
-      this.westBoundingCoordinateValidation = {
-        valid: false,
-        westBoundingCoordinateClasses: '',
-      };
-      this.locations = '';
-      this.locationsValidation = {
-        valid: false,
-        locationsClasses: '',
-      };
-      this.taxa_covered = '';
-      this.taxaCoveredValidation = {
-        valid: false,
-        taxaCoveredClasses: '',
-      };
-      this.collection_methods = '';
-      this.collectionMethodsValidation = {
-        valid: false,
-        collectionMethodsClasses: '',
-      };
-      this.data_source_doi = '';
-      this.data_source_url = '';
-      this.dataSourceValidation = {
-        valid: false,
-        dataSourceDOIValidation: {
-          valid: false,
-          dataSourceDOIClasses: '',
-        },
-        dataSourceURLValidation: {
-          valid: false,
-          dataSourceURLClasses: '',
-        },
-      };
-      this.embargoed = false;
-      this.embargo_release_date = null;
-      this.custodianValidation = {
-        custodianClasses: '',
-      };
-      this.contact_organisation = '';
-      this.contactOrganisationValidation = {
-        valid: false,
-        contactOrganisationClasses: '',
-      };
-      this.contact_position = '';
-      this.contactPositionValidation = {
-        valid: false,
-        contactPositionClasses: '',
-      };
-      this.contact_email = '';
-      this.contactEmailValidation = {
-        valid: false,
-        contactEmailClasses: '',
-      };
-      this.stored_format = '';
-      this.storedFormatValidation = {
-        valid: false,
-        storedFormatClasses: '',
-      };
-      this.available_formats = '';
-      this.access_rights = '';
-      this.accessRightsValidation = {
-        valid: false,
-        accessRightsClasses: '',
-      };
-      this.use_restrictions = '';
-      this.useRestrictionsValidation = {
-        valid: false,
-        useRestrictionsClasses: '',
-      };
-      this.security_classification = '';
-      this.securityClassificationValidation = {
-        valid: false,
-        securityClassificationClasses: '',
-      };
-      this.generalisations = '';
-      this.generalisationsValidation = {
-        valid: false,
-        generalisationsClasses: '',
-      };
     },
   },
 };

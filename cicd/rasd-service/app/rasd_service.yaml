@@ -455,7 +455,7 @@ Resources:
       Handler: rasd_fastapi.handler.handler
       MemorySize: 4096
       Role: !GetAtt IAMRoleiamRoleForLambda.Arn
-      Runtime: python3.9
+      Runtime: python3.13
       Timeout: 30
       Tags:
         - Key: Name
@@ -767,18 +767,18 @@ Resources:
           Value: !Ref AWS::StackName
 
 Outputs:
-  # CognitoPoolId:
-  #   Description: The Cognito Pool ID
-  #   Value: !Ref CognitoPool
-  # CognitoClientId:
-  #   Description: The Cognito Client ID
-  #   Value: !Ref CognitoAppClientRasdbackend
+  CognitoPoolId:
+    Description: The Cognito Pool ID
+    Value: !Ref CognitoPool
+  CognitoClientId:
+   Description: The Cognito Client ID
+   Value: !Ref CognitoAppClientRasdbackend
   # CognitoClientSecretKey:
   #   Description: The Cognito Client Secret Key
   #   Value: !GetAtt CognitoAppClientRasdbackend.ClientSecret
-  # DynamoDBTableAccessRequests:
-  #   Description: The DynamoDB Table for Access Requests
-  #   Value: !Ref DynamoDBTableDataAccessRequests
+  DynamoDBTableAccessRequests:
+   Description: The DynamoDB Table for Access Requests
+   Value: !Ref DynamoDBTableDataAccessRequests
   # DynamoDBTableMetadata:
   #   Description: The DynamoDB Table for Metadata
   #   Value: !Ref DynamoDBTableMetadata

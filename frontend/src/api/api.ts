@@ -354,8 +354,8 @@ export const createMetadataAPI = async function createMetadata(
         },
       }
     )
-    .then(() => {
-      message = ['Your Metadata has been created!', true];
+    .then((response) => {
+      message = ['Your Metadata has been created!', true, response.data.id];
     })
     .catch(() => {
       message = ['There has been a problem creating your metadata.', false];
@@ -507,6 +507,15 @@ export const editMetadataAPI = async function editMetadata(
     });
   // @ts-ignore
   return message;
+};
+
+export const deleteMetadataAPI = async function deleteMetadata(id: string): Promise<[string, boolean]> {
+  try {
+    await axios.delete('/metadata/' + id);
+    return ['Your Metadata has been deleted!', true];
+  } catch {
+    return ['There has been a problem deleting your metadata.', false];
+  }
 };
 
 export const getAccessRightsAPI = async function getAccessRights() {
@@ -668,7 +677,7 @@ export async function getRegistrationsAPI(
           reason: result.reason,
           organisationOverride: result.organisation_override,
           actionedBy: result.actioned_by,
-          createdAt: DateTime.fromISO(result.created_at).setLocale('en-AU').toLocaleString(),
+          createdAt: result.created_at, // Store as ISO string for correct sorting
         } as Registration;
       }),
     };

@@ -66,6 +66,9 @@
           <template v-else-if="column.field === 'organisation'">
             {{ typeof row[column.field] === 'string' ? row[column.field] : `${row[column.field].name}` }}
           </template>
+          <template v-else-if="column.field === 'createdAt'">
+            {{ row.createdAt ? new Date(row.createdAt).toLocaleDateString('en-AU') : '' }}
+          </template>
           <template v-else>
             {{ Array.isArray(row[column.field]) ? row[column.field].join(', ') : row[column.field] }}
           </template>
@@ -190,7 +193,7 @@ export default defineComponent({
         getOrganisationsAPI(),
       ]);
       if (registrationsResponse.data) {
-        const { results: registrations, cursor } = registrationsResponse.data;
+        let { results: registrations, cursor } = registrationsResponse.data;
         const organisations = await organisationsResponse;
         registrations.forEach((registration: unknown, index: number) => {
           const organisation = registrations[index].organisation;
@@ -202,6 +205,12 @@ export default defineComponent({
             resolvedOrganisation = { id: undefined, ...(organisation as CreateOrganisation) };
           }
           registrations[index].organisation = resolvedOrganisation as CreateOrganisation;
+        });
+        // Sort by createdAt descending
+        registrations = registrations.sort((a, b) => {
+          const dateA = new Date(a.createdAt).getTime();
+          const dateB = new Date(b.createdAt).getTime();
+          return dateB - dateA;
         });
         this.registrations = registrations;
         this.currentCursor = cursor;

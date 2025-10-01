@@ -13,7 +13,7 @@
   
   <body>
   <div class="hub container">
-    
+
 
      <!--
      Header 
@@ -36,6 +36,40 @@
 
 <!-- Header -->
 <section class="hub-header">
+    <!-- Responsive Navbar -->
+    <nav class="navbar rasd-navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#" title="Home">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle;">
+                    <path d="M10 20V14H14V20H19V12H22L12 3L2 12H5V20H10Z" fill="white"/>
+                </svg>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="rasd-navbar-link nav-link active" aria-current="page" href="./pdf-html/index.html">Framework</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="rasd-navbar-link nav-link" href="https://service.rasd.org.au/">RASD Service</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="rasd-navbar-link nav-link" href="./pdf/RASD-Project-Overview.pdf">Project Overview</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="rasd-navbar-link nav-link" href="./pdf/RASD-FAQs.pdf">FAQs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="rasd-navbar-link nav-link" href="#contact">Contact Us</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
     <div class="hub-header__container">
         <h1 class="hub-header__title">National Framework for the
             Sharing of Restricted Access
@@ -342,18 +376,21 @@
         <p class="hub-footer__text">
         For bibliographic purposes this publication may be cited as:
         </br>
-        National Framework for the Sharing of Restricted Access Species Data in Australia 2023, Atlas of Living Australia, Publication Series No. 6, Canberra, Australia.
+        National Framework for the Sharing of Restricted Access Species Data in Australia 2023, Atlas of Living Australia, Publication Series No. 6, Canberra, Australia. https://doi.org/10.54102/ala.94894.
         </p>
         <p class="hub-footer__text">
         Supplements of these publications are regularly updated and may be cited as:
         </br>
-        National Framework for the Sharing of Restricted Access Species Data in Australia 2023, Supplement Recognising Indigenous Data Sovereignty 1/12/2023, Atlas of Living Australia, CSIRO, Canberra.
+        National Framework for the Sharing of Restricted Access Species Data in Australia 2023, Supplement Recognising Indigenous Data Sovereignty 1/12/2023, Atlas of Living Australia, CSIRO, Canberra. https://doi.org/10.54102/ala.94894.
         </p>
         <p class="hub-footer__text">
         DOI: <a class="link" href="https://doi.org/10.54102/ala.94894">https://doi.org/10.54102/ala.94894</a> 
         </p>
         </br>
-         
+        <h3 class="header-3" id="contact">CONTACT US:</h3>
+        <p class="hub-footer__text">
+          <a class="link" href="mailto:info@rasd.org.au">info@rasd.org.au</a>
+        </p>
        <!-- <p>
         <a class="link tou" href="">Terms of Use</a><a class="link" href="">Privacy Policy</a>
         </p> -->
@@ -363,5 +400,6 @@
 
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script  type="text/javascript" src="scripts/scripts.js" defer></script>
 </body>

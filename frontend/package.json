@@ -1,6 +1,6 @@
 {
   "name": "frontend",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "private": true,
   "scripts": {
     "start": "vite",
@@ -9,8 +9,8 @@
     "preview": "vite preview",
     "type-check": "vue-tsc --noEmit",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --ignore-path .gitignore",
-    "prettier-check": "prettier --check src/**/*.{ts,vue,scss,css,html}",
-    "prettier-write": "prettier --write src/**/*.{ts,vue,scss,css,html}",
+    "prettier-check": "prettier --check \"src/**/*.{ts,vue,scss,css,html}\" --ignore-unknown",
+    "prettier-write": "prettier --write \"src/**/*.{ts,vue,scss,css,html}\" --ignore-unknown",
     "test": "vitest"
   },
   "dependencies": {
