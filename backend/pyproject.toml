@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rasd"
-version = "1.1.0"
+version = "1.1.1"
 description = "RASD Python AWS Lambda backend REST API using Poetry and Fast API"
 authors = ["Gaia Resources <dev@gaiaresources.com.au>"]
 readme = "README.md"
