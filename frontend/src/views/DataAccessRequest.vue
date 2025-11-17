@@ -52,7 +52,7 @@
           type="input"
           label="OrcID"
           :disabled="!!readOnlyFields"
-          placeholder="e.g. 1111-12345-1111-1111" />
+          placeholder="e.g. 1111-1111-1111-1111" />
         <h2 class="is-size-3 mt-6">Project</h2>
         <validated-field
           v-model:value="projectTitle"

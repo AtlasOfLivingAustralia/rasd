@@ -14,7 +14,7 @@ class Orcid(str):
     # ORCID Regex
     # See: https://en.wikipedia.org/wiki/ORCID
     # See: https://www.wikidata.org/wiki/Property:P496
-    ORCID_PATTERN = r"^0000-000(1-[5-9]|2-[0-9]|3-[0-4])\d{3}-\d{3}[\dX]$"
+    ORCID_PATTERN = r"^(?:\d{4}-){3}\d{3}[0-9X]$"
     ORCID_REGEX = re.compile(ORCID_PATTERN)
 
     # ORCID Rules
