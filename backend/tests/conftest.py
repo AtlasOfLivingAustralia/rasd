@@ -35,6 +35,7 @@ with patch("boto3.client") as mock_client:
     mock_sm.get_secret_value.side_effect = Exception("No secrets in test")
     mock_client.return_value = mock_sm
 
+
 # Shortcuts
 DictOrModel = Union[dict[str, Any], pydantic.BaseModel]
 

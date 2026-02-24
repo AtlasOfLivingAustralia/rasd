@@ -313,7 +313,6 @@ def secret_hash(username: pydantic.EmailStr) -> str:
     Returns:
         str: Generated secret hash.
     """
-    
     # Calculate and Return Secret Hash
     return base64.b64encode(
          s=hmac.new(
