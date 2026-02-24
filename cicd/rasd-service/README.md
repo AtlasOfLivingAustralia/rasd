@@ -70,7 +70,7 @@ backend
 
 In order to run the RASD backend, there are a number of required environment variables that **must** be set. We have set them up cloudformation, which will set environment variables when creating the lambda function. For an up-to-date list of all environment variables, see the `lambdas/rasd_fastapi/core/settings.py` file.
 
-Another thing to setup is AWS secrets. The `ABN_LOOKUP_GUID` variable should be set in newly created environment.
+Another thing to setup is AWS secrets. The `ABN_LOOKUP_GUID` variable should be set in newly created environments.
 
 ## Development
 
