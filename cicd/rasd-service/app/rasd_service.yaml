@@ -75,7 +75,8 @@ Resources:
       SecretString: !Sub 
         - |
             {
-              "AWS_COGNITO_CLIENT_SECRET_KEY": "${ClientSecret}"
+              "AWS_COGNITO_CLIENT_SECRET_KEY": "${ClientSecret}",
+              "ABN_LOOKUP_GUID": ""
             }
         - ClientSecret: !GetAtt CognitoAppClientRasdbackend.ClientSecret
 
