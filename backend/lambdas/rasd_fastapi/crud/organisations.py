@@ -92,6 +92,36 @@ class OrganisationCRUD(
         # If there are no results, then this is unique
         return results.count == 0
 
+    def find_existing(
+        self,
+        db_session: boto3.Session,
+        *,
+        obj_in: org_schemas.OrganisationCreate,
+    ) -> org_models.Organisation | None:
+        """Finds an existing Organisation by name or ABN.
+
+        Args:
+            db_session (boto3.Session): Database session to use.
+            obj_in (org_schemas.OrganisationCreate): Data to search for.
+
+        Returns:
+            org_models.Organisation | None: Existing Organisation if found, None otherwise.
+        """
+        # Create filter to find matching organisation by name or ABN
+        existing_filter = (
+            boto3.dynamodb.conditions.Attr("name").eq(obj_in.name)
+            | boto3.dynamodb.conditions.Attr("abn").eq(obj_in.abn)
+        )
+
+        # Scan for existing organisations
+        results = self.scan(db_session, filter=existing_filter)
+
+        # Return the first match if any exist
+        if results.count > 0:
+            return results.items[0]
+
+        return None
+
 
 # Instantiate Organisation CRUD Singleton
 organisation = OrganisationCRUD(
