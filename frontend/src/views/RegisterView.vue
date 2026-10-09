@@ -104,6 +104,10 @@
           >Register</o-button
         >
       </div>
+      <div v-if="duplicateOrgWarning" class="notification is-warning mt-4">
+        <button class="delete" @click="duplicateOrgWarning = ''"></button>
+        {{ duplicateOrgWarning }}
+      </div>
     </div>
   </div>
 </template>
@@ -170,6 +174,8 @@ export default {
       registerTerms:
         '* When registering as a Data Custodian or Data Requestor with the RASDS, you agree to adhere to these Terms of Use. Any personal information that you provide will be used for the purpose of establishing your account with and facilitating data access via the RASDS, and will be handled in accordance with the RASDS Privacy Notice.',
       loading: false,
+      duplicateOrgWarning: '', // Add warning message for duplicate organization
+      existingOrgSuggestion: null, // Store existing org when duplicate is detected
     };
   },
   computed: {
@@ -225,6 +231,20 @@ export default {
         this.lookupABN = '';
       }
     },
+
+    // Watch for when users clear the organization selection
+    organisations(newValue) {
+      // If user clears the organization dropdown but manual fields are still filled
+      if (!newValue && !this.selectedOrg && this.organisationName && this.organisationABN) {
+        // Check if the manual details match an existing organization
+        const existingOrg = this.checkForExistingOrganisation(this.organisationName, this.organisationABN);
+
+        if (existingOrg) {
+          // Auto-reselect the existing organization and show helpful message
+          this.handleExistingOrganisation(existingOrg);
+        }
+      }
+    },
   },
   methods: {
     async getOptions() {
@@ -234,23 +254,35 @@ export default {
       const { oruga } = useProgrammatic();
       this.organisationEmail = '';
       this.orgSelected = false;
+      this.duplicateOrgWarning = ''; // Clear any previous warnings
+
       this.organisationLookup = await lookupABNAPI(this.lookupABN);
+
       if (this.organisationLookup?.AbnStatus === 'Active') {
-        oruga.notification.open({
-          message: 'Organisation Added!',
-          position: 'top',
-          closable: true,
-          variant: 'success',
-          duration: 10000,
-        });
+        // Check if this organization already exists in RASD
+        const existingOrg = this.checkForExistingOrganisation(
+          this.organisationLookup.EntityName,
+          this.organisationLookup.Abn
+        );
+
+        if (existingOrg) {
+          // Organization already exists - auto-select it and show helpful message
+          this.handleExistingOrganisation(existingOrg);
+        } else {
+          oruga.notification.open({
+            message: 'Organisation Added!',
+            position: 'top',
+            closable: true,
+            variant: 'success',
+            duration: 10000,
+          });
+        }
       } else {
         oruga.notification.open({
           message: 'Search text is not a valid ABN or ACN',
           position: 'top',
           closable: true,
           variant: 'danger',
-          //Found out that the duration is permanently set to 2000ms by default even if you pass 'forceclose' as a prop
-          // Decided to just have a long duration instead
           duration: 10000,
         });
       }
@@ -260,42 +292,96 @@ export default {
       if (!this.organisationLookup) {
         this.orgSelected = true;
       }
+      // Clear any duplicate warnings when user selects from dropdown
+      this.duplicateOrgWarning = '';
     },
     async registerUser() {
       const { oruga } = useProgrammatic();
+
+      // If no organization is selected but manual details are filled, check for duplicates
+      if (!this.selectedOrg && this.organisationName && this.organisationABN) {
+        const existingOrg = this.checkForExistingOrganisation(this.organisationName, this.organisationABN);
+
+        if (existingOrg) {
+          // Found existing organization - auto-select it and show helpful message
+          this.handleExistingOrganisation(existingOrg);
+          oruga.notification.open({
+            message:
+              'We found your organisation in our system and have selected it for you. Please click Register again to continue.',
+            position: 'top',
+            closable: true,
+            variant: 'warning',
+            duration: 10000,
+          });
+          return; // Exit early to let user confirm the auto-selection
+        }
+      }
+
       const org = this.selectedOrg?.id || {
         name: this.organisationName,
         abn: this.organisationABN,
         email: this.organisationEmail,
       };
+
       const agreements =
         this.role === 'DataCustodians'
           ? [this.registerReference, this.registerPolicy, this.registerTerms]
           : [this.registerTerms];
+
       this.loading = true;
-      this.notification = await registerAPI(this.workEmail, this.firstName, this.lastName, this.role, org, agreements);
-      this.loading = false;
-      oruga.notification.open({
-        message: this.notification[0],
-        position: 'top',
-        closable: true,
-        variant: this.notification[1] ? 'success' : 'danger',
-        duration: 10000,
-      });
-      if (this.notification[1]) {
-        this.firstName = '';
-        this.lastName = '';
-        this.workEmail = '';
-        this.organisationName = '';
-        this.organisationEmail = '';
-        this.organisationABN = '';
-        this.organisationLookup = '';
-        this.referenceCheckbox = false;
-        this.policyCheckbox = false;
-        this.termsCheckbox = false;
-        this.selectedOrg = null;
-        this.lookupABN = '';
-        this.$router.push({ name: 'home' });
+
+      try {
+        this.notification = await registerAPI(
+          this.workEmail,
+          this.firstName,
+          this.lastName,
+          this.role,
+          org,
+          agreements
+        );
+        this.loading = false;
+
+        // Provide more specific error messages for organization-related issues
+        let message = this.notification[0];
+        if (!this.notification[1] && message.includes('already exists')) {
+          message =
+            'This organisation is already registered with RASD. Please select your organisation from the dropdown list above instead of entering it manually.';
+        }
+
+        oruga.notification.open({
+          message: message,
+          position: 'top',
+          closable: true,
+          variant: this.notification[1] ? 'success' : 'danger',
+          duration: 10000,
+        });
+
+        if (this.notification[1]) {
+          // Clear form and redirect on success
+          this.firstName = '';
+          this.lastName = '';
+          this.workEmail = '';
+          this.organisationName = '';
+          this.organisationEmail = '';
+          this.organisationABN = '';
+          this.organisationLookup = '';
+          this.referenceCheckbox = false;
+          this.policyCheckbox = false;
+          this.termsCheckbox = false;
+          this.selectedOrg = null;
+          this.lookupABN = '';
+          this.duplicateOrgWarning = '';
+          this.$router.push({ name: 'home' });
+        }
+      } catch (error) {
+        this.loading = false;
+        oruga.notification.open({
+          message: 'There was an error processing your registration. Please try again or contact support.',
+          position: 'top',
+          closable: true,
+          variant: 'danger',
+          duration: 10000,
+        });
       }
     },
     validateFirstName(name) {
@@ -312,6 +398,43 @@ export default {
     },
     validateOrganisationEmail(email) {
       this.organisationEmailValidation = emailValidator(email);
+    },
+
+    // Check if an organization already exists in RASD by name or ABN
+    checkForExistingOrganisation(entityName, abn) {
+      // First check for exact ABN match
+      let existingOrg = this.organisationOptions.find((org) => org.abn === abn);
+
+      if (!existingOrg) {
+        // If no ABN match, check for similar name matches
+        const normalizedEntityName = entityName.toLowerCase().trim();
+        existingOrg = this.organisationOptions.find((org) => org.name.toLowerCase().trim() === normalizedEntityName);
+      }
+
+      return existingOrg || null;
+    },
+
+    // Handle when an existing organization is detected
+    handleExistingOrganisation(existingOrg) {
+      const { oruga } = useProgrammatic();
+
+      // Auto-select the existing organization
+      this.selectedOrg = existingOrg;
+      this.organisations = existingOrg.name;
+      this.orgSelected = true;
+
+      // Clear the manual ABN lookup fields
+      this.lookupABN = '';
+      this.organisationLookup = null;
+
+      // Show helpful notification
+      oruga.notification.open({
+        message: `This organisation is already registered with RASD. We've automatically selected "${existingOrg.name}" for you.`,
+        position: 'top',
+        closable: true,
+        variant: 'info',
+        duration: 10000,
+      });
     },
   },
 };
