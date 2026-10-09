@@ -153,8 +153,16 @@ class RegistrationCRUD(
                 raise ValueError(f"Organisation with ID '{org}' does not exist")
 
         else:
-            # Create the Organisation and Retrieve its ID
-            org = org_crud.organisation.create_unique(db_session, obj_in=org).id
+            # Check if an organisation with matching details already exists
+            existing_org = org_crud.organisation.find_existing(db_session, obj_in=org)
+
+            if existing_org:
+                # Use the existing organisation instead of creating a new one
+                # Note: The existing organisation's email address takes precedence
+                org = existing_org.id
+            else:
+                # Create the Organisation and Retrieve its ID
+                org = org_crud.organisation.create_unique(db_session, obj_in=org).id
 
         # Now, register the user in AWS Cognito
         password = cognito.register(
