@@ -63,7 +63,7 @@ export interface Registration {
 
 export enum RegistrationStatus {
   NEW = 'New',
-  ACCEPTED = 'Accepted',
+  APPROVED = 'Approved',
   DECLINED = 'Declined',
 }
 
