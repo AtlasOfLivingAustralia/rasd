@@ -210,3 +210,44 @@ async def decline_registration(
 
     # Return
     return obj
+
+
+@router.delete(r"/{pk}", response_model=reg_models.Registration)
+async def delete_registration(
+    *,
+    admin: auth.User = fastapi.Depends(security.require_admin),  # noqa: B008
+    db_session: boto3.Session = fastapi.Depends(session.db_session),  # noqa: B008
+    pk: uuid.UUID,
+) -> reg_models.Registration:
+    """Delete Registration endpoint for REST API.
+
+    Args:
+        admin (auth.User): Currently logged in admin via dependency injection.
+        db_session (boto3.Session): Dependency injection database session.
+        pk (uuid.UUID): Primary key of the Registration to delete.
+
+    Returns:
+        reg_models.Registration: Deleted Registration.
+    """
+    # Retrieve Registration
+    reg = utils.unwrap_or_404(
+        value=reg_crud.registration.get(db_session, pk=pk),
+    )
+
+    # Handle Removal Errors
+    try:
+        # Remove Registration
+        obj = reg_crud.registration.remove(
+            db_session,
+            db_obj=reg,
+        )
+
+    except ValueError as exc:
+        # Error
+        raise fastapi.HTTPException(
+            status_code=fastapi.status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
+        ) from exc
+
+    # Return
+    return obj
