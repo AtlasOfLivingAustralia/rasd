@@ -49,6 +49,17 @@
           </template>
         </o-checkbox>
         <div class="mt-4 mb-4 container is-flex is-justify-content-end">
+          <!-- For users whose temporary password expired before they set their password -->
+          <o-button
+            v-if="status === RegistrationStatus.APPROVED"
+            class="button mr-4"
+            :class="{ 'is-loading': loading }"
+            variant="primary"
+            outlined
+            @click="resendTemporaryPassword"
+            :disabled="loading">
+            Resend temporary password</o-button
+          >
           <o-button
             class="button mr-4"
             :class="{ 'is-loading': this.loading }"
@@ -73,7 +84,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { approveRequestAPI } from '@/api/api';
+import { approveRequestAPI, resendTemporaryPasswordAPI } from '@/api/api';
 import { useProgrammatic } from '@oruga-ui/oruga-next';
 import { RegistrationStatus, UserGroup } from '@/api/api.types';
 
@@ -128,6 +139,30 @@ export default defineComponent({
       if (!response.error) {
         this.$emit('back', true);
       }
+    },
+    async resendTemporaryPassword() {
+      if (
+        !this.id ||
+        !confirm(
+          `Send a new temporary password to ${this.givenName} ${this.familyName} (${this.username})? This only works if they have not yet set their password.`
+        )
+      ) {
+        return;
+      }
+      this.loading = true;
+      const response = await resendTemporaryPasswordAPI(this.id);
+      this.loading = false;
+      const { oruga } = useProgrammatic();
+      const message = response.error
+        ? response.error.message
+        : `A new temporary password was sent to ${this.username}.`;
+      oruga.notification.open({
+        message: message,
+        position: 'top',
+        closable: true,
+        variant: response.error ? 'danger' : 'success',
+        duration: 10000,
+      });
     },
   },
 });
