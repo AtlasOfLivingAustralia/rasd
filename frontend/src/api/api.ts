@@ -721,6 +721,34 @@ export async function approveRequestAPI(id: string, approve: boolean) {
   return { data: data, error };
 }
 
+export async function deleteRegistrationAPI(id: string) {
+  let data: boolean | undefined;
+  let error: ApiError | undefined;
+
+  try {
+    await axios.delete(`/register/${id}`);
+    data = true;
+  } catch (e) {
+    if (e instanceof Error) {
+      error = {
+        message: e.message,
+      };
+
+      if (e instanceof AxiosError) {
+        error.code = e.code;
+        error.status = e.response?.status;
+        error.statusText = e.response?.statusText;
+        // Prefer the backend's explanation (e.g. why the registration cannot be deleted)
+        if (typeof e.response?.data?.detail === 'string') {
+          error.message = e.response.data.detail;
+        }
+      }
+    }
+  }
+
+  return { data: data, error };
+}
+
 export async function submitAccessRequestAPI(accessRequest: DataAccessRequestWrite) {
   const requestData = stripNullParams({
     metadata_ids: accessRequest.metadataIds,

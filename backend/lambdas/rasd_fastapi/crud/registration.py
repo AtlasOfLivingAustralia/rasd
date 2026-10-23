@@ -60,9 +60,14 @@ class RegistrationCRUD(
             raise ValueError("Registering an Administrator user is not allowed")
 
         # Check if an existing registration has already been created
-        unique = con.Attr("username").eq(obj_in.username)
+        # Declined registrations are ignored, so the user can register again
+        # with corrected details after their original request is declined
+        unique = (
+            con.Attr("username").eq(obj_in.username)
+            & con.Attr("status").ne(reg_models.Status.DECLINED)
+        )
         if self.scan(db_session, filter=unique).count != 0:
-            # Registration can only be performed once per email address
+            # Registration can only be pending or approved once per email address
             raise ValueError("Registration with matching details already exists")
 
         # Check if an existing or a new organisation has been provided
@@ -237,6 +242,39 @@ class RegistrationCRUD(
             rasd_framework_url=settings.SETTINGS.RASD_FRAMEWORK_URL,
             rasd_support_email=settings.SETTINGS.RASD_SUPPORT_EMAIL,
         )
+
+        # Return
+        return db_obj
+
+    def remove(
+        self,
+        db_session: boto3.Session,
+        *,
+        db_obj: reg_models.Registration,
+    ) -> reg_models.Registration:
+        """Removes a Registration.
+
+        Only New or Declined Registrations can be removed. An Approved
+        Registration has a corresponding user in Cognito, so removing it here
+        would leave that user without a Registration.
+
+        Args:
+            db_session (boto3.Session): Database session to use.
+            db_obj (reg_models.Registration): Registration to remove.
+
+        Raises:
+            ValueError: Raised if the Registration cannot be removed.
+
+        Returns:
+            reg_models.Registration: Removed Registration.
+        """
+        # Check current status
+        if db_obj.status == reg_models.Status.APPROVED:
+            # Error
+            raise ValueError(f"Cannot remove registration with status '{db_obj.status.value}'")
+
+        # Delete the Registration from the Database
+        self.delete(db_session, pk=db_obj.id)
 
         # Return
         return db_obj
