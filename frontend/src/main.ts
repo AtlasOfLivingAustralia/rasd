@@ -29,6 +29,7 @@ import {
   faListAlt,
   faPeopleRoof,
   faPencil,
+  faTrash,
 } from '@fortawesome/free-solid-svg-icons';
 import './assets/main.scss';
 
@@ -52,7 +53,8 @@ library.add(
   faQuestionCircle,
   faListAlt,
   faPeopleRoof,
-  faPencil
+  faPencil,
+  faTrash
 );
 
 const pinia = createPinia();
