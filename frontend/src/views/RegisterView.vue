@@ -92,7 +92,13 @@
       </div>
       <div class="field is-flex">
         <o-checkbox v-model="termsCheckbox"></o-checkbox>
-        <p>{{ registerTerms }}</p>
+        <p>
+          * When registering as a Data Custodian or Data Requestor with the RASDS, you agree to adhere to these
+          <RouterLink :to="{ name: 'terms-of-use' }" target="_blank">Terms of Use</RouterLink>. Any personal information
+          that you provide will be used for the purpose of establishing your account with and facilitating data access
+          via the RASDS, and will be handled in accordance with the RASDS
+          <RouterLink :to="{ name: 'privacy-notice' }" target="_blank">Privacy Notice</RouterLink>.
+        </p>
       </div>
       <div class="field is-grouped buttons is-pulled-right">
         <o-button

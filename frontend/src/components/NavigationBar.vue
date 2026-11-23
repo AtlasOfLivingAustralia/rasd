@@ -32,6 +32,14 @@
               >Privacy Notice</RouterLink
             >
             <RouterLink :to="{ name: 'terms-of-use' }" class="navbar-item" id="dropdown-link">Terms of Use</RouterLink>
+            <a
+              href="https://rasd.org.au/pdf/RASD-User-Guide.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="navbar-item"
+              id="dropdown-link"
+              >User Guide</a
+            >
           </div>
         </div>
         <div v-if="userData.id">

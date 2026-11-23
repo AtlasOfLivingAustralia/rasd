@@ -115,3 +115,4 @@ dataset_request_completed = Email("dsr_completed.html", "RASD Completion of Requ
 registration_created = Email("registration_created.html", "RASD Registration Request Received")
 registration_approved = Email("registration_approved.html", "RASD Registration Request has been approved")
 registration_declined = Email("registration_declined.html", "RASD Registration Request has been declined")
+registration_temporary_password = Email("registration_temporary_password.html", "RASD temporary password has been reset")  # noqa: E501

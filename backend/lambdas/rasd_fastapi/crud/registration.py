@@ -3,12 +3,14 @@
 
 # Standard
 import functools
+import logging
 import operator
 import uuid
 
 # Third-Party
 import boto3
 import boto3.dynamodb.conditions as con
+import botocore.exceptions
 import pydantic
 
 # Local
@@ -24,6 +26,11 @@ from rasd_fastapi.services import abn
 
 # Typing
 from typing import Optional
+
+
+# Logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 class RegistrationCRUD(
@@ -60,9 +67,14 @@ class RegistrationCRUD(
             raise ValueError("Registering an Administrator user is not allowed")
 
         # Check if an existing registration has already been created
-        unique = con.Attr("username").eq(obj_in.username)
+        # Declined registrations are ignored, so the user can register again
+        # with corrected details after their original request is declined
+        unique = (
+            con.Attr("username").eq(obj_in.username)
+            & con.Attr("status").ne(reg_models.Status.DECLINED)
+        )
         if self.scan(db_session, filter=unique).count != 0:
-            # Registration can only be performed once per email address
+            # Registration can only be pending or approved once per email address
             raise ValueError("Registration with matching details already exists")
 
         # Check if an existing or a new organisation has been provided
@@ -237,6 +249,103 @@ class RegistrationCRUD(
             rasd_framework_url=settings.SETTINGS.RASD_FRAMEWORK_URL,
             rasd_support_email=settings.SETTINGS.RASD_SUPPORT_EMAIL,
         )
+
+        # Return
+        return db_obj
+
+    def remove(
+        self,
+        db_session: boto3.Session,
+        *,
+        db_obj: reg_models.Registration,
+    ) -> reg_models.Registration:
+        """Removes a Registration.
+
+        Only New or Declined Registrations can be removed. An Approved
+        Registration has a corresponding user in Cognito, so removing it here
+        would leave that user without a Registration.
+
+        Args:
+            db_session (boto3.Session): Database session to use.
+            db_obj (reg_models.Registration): Registration to remove.
+
+        Raises:
+            ValueError: Raised if the Registration cannot be removed.
+
+        Returns:
+            reg_models.Registration: Removed Registration.
+        """
+        # Check current status
+        if db_obj.status == reg_models.Status.APPROVED:
+            # Error
+            raise ValueError(f"Cannot remove registration with status '{db_obj.status.value}'")
+
+        # Delete the Registration from the Database
+        self.delete(db_session, pk=db_obj.id)
+
+        # Return
+        return db_obj
+
+    def resend_temporary_password(
+        self,
+        *,
+        db_obj: reg_models.Registration,
+        actioned_by: pydantic.EmailStr,
+    ) -> reg_models.Registration:
+        """Resends a temporary password for an Approved Registration.
+
+        This is used when a user's temporary password has expired before they
+        set their permanent password. A new temporary password is generated in
+        Cognito and emailed to the user.
+
+        Args:
+            db_obj (reg_models.Registration): Registration to resend for.
+            actioned_by (pydantic.EmailStr): The email address of the Admin
+                resending the temporary password.
+
+        Raises:
+            ValueError: Raised if the temporary password cannot be resent.
+            RuntimeError: Raised if the temporary password was reset but the
+                email could not be sent.
+
+        Returns:
+            reg_models.Registration: Registration the password was resent for.
+        """
+        # Check current status
+        if db_obj.status != reg_models.Status.APPROVED:
+            # Error
+            raise ValueError(f"Cannot resend temporary password for registration with status '{db_obj.status.value}'")
+
+        # Reset the temporary password in AWS Cognito
+        password = cognito.reset_temporary_password(username=db_obj.username)
+
+        # Audit Log
+        logger.info(
+            "Temporary password for '%s' (registration %s) reset by admin '%s'",
+            db_obj.username,
+            db_obj.id,
+            actioned_by,
+        )
+
+        # Send Temporary Password Email
+        # The old temporary password is no longer valid at this point, so the
+        # admin needs to know to retry if the email fails
+        try:
+            email.registration_temporary_password.send(
+                to_addresses=db_obj.username,
+                given_name=db_obj.given_name,
+                family_name=db_obj.family_name,
+                temporary_password=password.get_secret_value(),
+                rasd_create_password_url=settings.SETTINGS.RASD_CREATE_PASSWORD_URL,
+            )
+
+        except (botocore.exceptions.BotoCoreError, botocore.exceptions.ClientError) as exc:
+            # Error
+            logger.exception("Failed to send temporary password email to '%s'", db_obj.username)
+            raise RuntimeError(
+                f"Temporary password for '{db_obj.username}' was reset but the email could not be sent. "
+                "Please try again."
+            ) from exc
 
         # Return
         return db_obj

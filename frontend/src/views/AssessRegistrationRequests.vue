@@ -73,6 +73,19 @@
             {{ Array.isArray(row[column.field]) ? row[column.field].join(', ') : row[column.field] }}
           </template>
         </o-table-column>
+        <o-table-column label="" #default="{ row }">
+          <!-- Approved registrations have a Cognito user, so they cannot be deleted here -->
+          <o-button
+            v-if="[RegistrationStatus.NEW, RegistrationStatus.DECLINED].includes(row.status)"
+            variant="danger"
+            size="small"
+            outlined
+            :disabled="loading"
+            @click="confirmDelete(row)"
+            aria-label="delete registration"
+            ><font-awesome-icon icon="fa-solid fa-trash"
+          /></o-button>
+        </o-table-column>
       </o-table>
       <h2 v-if="!registrations">Not Available</h2>
     </div>
@@ -80,9 +93,11 @@
 </template>
 
 <script lang="ts">
-import { getOrganisationsAPI, getRegistrationsAPI } from '@/api/api';
+import { deleteRegistrationAPI, getOrganisationsAPI, getRegistrationsAPI } from '@/api/api';
 import { defineComponent } from 'vue';
+import { useProgrammatic } from '@oruga-ui/oruga-next';
 import type { Registration, CreateOrganisation } from '@/api/api.types';
+import { RegistrationStatus } from '@/api/api.types';
 import PageHeadingWithDescription from '@/components/PageHeadingWithDescription.vue';
 import RegistrationRequestApproval from '@/views/RegistrationRequestApproval.vue';
 import { useUserDataStore } from '@/store';
@@ -175,6 +190,9 @@ export default defineComponent({
     },
   },
   computed: {
+    RegistrationStatus() {
+      return RegistrationStatus;
+    },
     visibleColumns() {
       return this.columns.filter((column) => column.display);
     },
@@ -220,6 +238,37 @@ export default defineComponent({
       this.selected = selected;
       if (refresh) {
         this.getRegistrations(this.count, this.currentCursor, this.statusFilter);
+      }
+    },
+    confirmDelete(registration: Registration) {
+      if (
+        confirm(
+          `Are you sure you want to delete the ${registration.status.toLowerCase()} registration request for ${
+            registration.givenName
+          } ${registration.familyName} (${registration.username})? This action cannot be undone.`
+        )
+      ) {
+        this.deleteRegistration(registration);
+      }
+    },
+    async deleteRegistration(registration: Registration) {
+      this.loading = true;
+      const response = await deleteRegistrationAPI(registration.id);
+      this.loading = false;
+      const { oruga } = useProgrammatic();
+      const message = response.error
+        ? response.error.message
+        : `Registration request for ${registration.givenName} ${registration.familyName} was successfully deleted.`;
+      oruga.notification.open({
+        message: message,
+        position: 'top',
+        closable: true,
+        variant: response.error ? 'danger' : 'success',
+        duration: 10000,
+      });
+      if (!response.error) {
+        // Reload the current page (`currentCursor` points to the next page)
+        this.getRegistrations(this.count, this.previousCursors[this.page - 1], this.statusFilter);
       }
     },
   },

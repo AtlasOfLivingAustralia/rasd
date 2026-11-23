@@ -112,6 +112,67 @@ def register(
     return password
 
 
+def reset_temporary_password(
+    username: pydantic.EmailStr,
+) -> pydantic.SecretStr:
+    """Performs the 'reset temporary password' authentication flow.
+
+    This is used when a user has not set their password before their temporary
+    password expired. A new temporary password is generated, which also
+    restarts the temporary password expiry period.
+
+    Args:
+        username (pydantic.EmailStr): Username to reset temporary password for.
+
+    Raises:
+        ValueError: Raised if the user does not exist, has already set their
+            password or is disabled.
+
+    Returns:
+        pydantic.SecretStr: New temporary password generated for the user.
+    """
+    # Get Client
+    client = cognito_client()
+
+    # Retrieve User
+    try:
+        user = client.admin_get_user(
+            UserPoolId=settings.SETTINGS.AWS_COGNITO_POOL_ID,
+            Username=username,
+        )
+
+    except client.exceptions.UserNotFoundException as exc:
+        # Error
+        raise ValueError(f"User '{username}' does not exist") from exc
+
+    # Check User Status
+    # Only users that have not yet set their password can be reset here,
+    # otherwise we would overwrite the password of an active user
+    if user["UserStatus"] != "FORCE_CHANGE_PASSWORD":
+        # Error
+        raise ValueError(f"User '{username}' has already set their password")
+
+    # Check User Enabled
+    # Disabled users should not be handed a new credential
+    if not user["Enabled"]:
+        # Error
+        raise ValueError(f"User '{username}' is disabled")
+
+    # Generate Temporary Password
+    password = temporary_password()
+
+    # Set Temporary Password
+    client.admin_set_user_password(
+        UserPoolId=settings.SETTINGS.AWS_COGNITO_POOL_ID,
+        Username=username,
+        Password=password.get_secret_value(),
+        Permanent=False,
+    )
+
+    # Return
+    return password
+
+
 def set_password(
     username: pydantic.EmailStr,
     temp_password: pydantic.SecretStr,
